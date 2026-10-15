@@ -50,7 +50,10 @@ function Login() {
 
   async function social(p: "google" | "microsoft") {
     const r = await lovable.auth.signInWithOAuth(p, { redirect_uri: window.location.origin });
-    if (r.error) return toast.error("Não foi possível entrar. Tente novamente.");
+    if (r.error) {
+      toast.error("Não foi possível entrar. Tente novamente.");
+      return;
+    }
     if (r.redirected) return;
     navigate({ to: "/painel", replace: true });
   }
