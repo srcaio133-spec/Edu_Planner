@@ -111,7 +111,7 @@ function Cadastro() {
               <option value="">Selecione</option>
               {turmas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
             </select>
-            {erros.turma_id && <p className="text-xs text-destructive">{erros.turma_id}</p>}
+            {erros["turma_id"] && <p className="text-xs text-destructive">{erros["turma_id"]}</p>}
           </div>
         </div>
         {campo("senha", "Senha", { type: "password", autoComplete: "new-password" })}
