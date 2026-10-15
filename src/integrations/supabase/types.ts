@@ -14,16 +14,458 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      auditoria: {
+        Row: {
+          acao: string
+          created_at: string
+          detalhes: Json | null
+          entidade: string | null
+          entidade_id: string | null
+          id: number
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          detalhes?: Json | null
+          entidade?: string | null
+          entidade_id?: string | null
+          id?: never
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          detalhes?: Json | null
+          entidade?: string | null
+          entidade_id?: string | null
+          id?: never
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      disciplinas: {
+        Row: {
+          cor: string
+          icone: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          cor?: string
+          icone?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          cor?: string
+          icone?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      entregas: {
+        Row: {
+          aluno_id: string
+          concluida_em: string | null
+          id: string
+          nota: number | null
+          status: Database["public"]["Enums"]["status_entrega"]
+          tarefa_id: string
+          updated_at: string
+        }
+        Insert: {
+          aluno_id: string
+          concluida_em?: string | null
+          id?: string
+          nota?: number | null
+          status?: Database["public"]["Enums"]["status_entrega"]
+          tarefa_id: string
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          concluida_em?: string | null
+          id?: string
+          nota?: number | null
+          status?: Database["public"]["Enums"]["status_entrega"]
+          tarefa_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entregas_tarefa_id_fkey"
+            columns: ["tarefa_id"]
+            isOneToOne: false
+            referencedRelation: "tarefas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eventos: {
+        Row: {
+          created_at: string
+          dono_id: string | null
+          id: string
+          inicio: string
+          oficial: boolean
+          tipo: string
+          titulo: string
+          turma_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dono_id?: string | null
+          id?: string
+          inicio: string
+          oficial?: boolean
+          tipo?: string
+          titulo: string
+          turma_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dono_id?: string | null
+          id?: string
+          inicio?: string
+          oficial?: boolean
+          tipo?: string
+          titulo?: string
+          turma_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eventos_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matriculas: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          id: string
+          status: string
+          turma_id: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          turma_id: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          turma_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matriculas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notas: {
+        Row: {
+          aluno_id: string
+          id: string
+          lancada_em: string
+          prova_id: string
+          valor: number
+        }
+        Insert: {
+          aluno_id: string
+          id?: string
+          lancada_em?: string
+          prova_id: string
+          valor: number
+        }
+        Update: {
+          aluno_id?: string
+          id?: string
+          lancada_em?: string
+          prova_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notas_prova_id_fkey"
+            columns: ["prova_id"]
+            isOneToOne: false
+            referencedRelation: "provas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notificacoes: {
+        Row: {
+          created_at: string
+          id: string
+          lida: boolean
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lida?: boolean
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lida?: boolean
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          matricula: string | null
+          nome: string
+          telefone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          matricula?: string | null
+          nome?: string
+          telefone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          matricula?: string | null
+          nome?: string
+          telefone?: string | null
+        }
+        Relationships: []
+      }
+      provas: {
+        Row: {
+          conteudo: string | null
+          created_at: string
+          data: string
+          disciplina_id: string
+          id: string
+          peso: number
+          titulo: string
+          turma_id: string
+        }
+        Insert: {
+          conteudo?: string | null
+          created_at?: string
+          data: string
+          disciplina_id: string
+          id?: string
+          peso?: number
+          titulo: string
+          turma_id: string
+        }
+        Update: {
+          conteudo?: string | null
+          created_at?: string
+          data?: string
+          disciplina_id?: string
+          id?: string
+          peso?: number
+          titulo?: string
+          turma_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provas_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tarefas: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          disciplina_id: string
+          id: string
+          permite_anexo: boolean
+          prazo: string
+          prioridade: Database["public"]["Enums"]["prioridade"]
+          professor_id: string | null
+          titulo: string
+          turma_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          disciplina_id: string
+          id?: string
+          permite_anexo?: boolean
+          prazo: string
+          prioridade?: Database["public"]["Enums"]["prioridade"]
+          professor_id?: string | null
+          titulo: string
+          turma_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          disciplina_id?: string
+          id?: string
+          permite_anexo?: boolean
+          prazo?: string
+          prioridade?: Database["public"]["Enums"]["prioridade"]
+          professor_id?: string | null
+          titulo?: string
+          turma_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarefas_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tarefas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turma_disciplinas: {
+        Row: {
+          disciplina_id: string
+          id: string
+          professor_id: string | null
+          professor_nome: string
+          turma_id: string
+        }
+        Insert: {
+          disciplina_id: string
+          id?: string
+          professor_id?: string | null
+          professor_nome?: string
+          turma_id: string
+        }
+        Update: {
+          disciplina_id?: string
+          id?: string
+          professor_id?: string | null
+          professor_nome?: string
+          turma_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turma_disciplinas_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turma_disciplinas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turmas: {
+        Row: {
+          ano_letivo: number
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          ano_letivo?: number
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          ano_letivo?: number
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      aluno_na_turma: { Args: { _turma: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_gestao: { Args: { _user_id: string }; Returns: boolean }
+      prof_da_turma: { Args: { _turma: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "aluno"
+        | "professor"
+        | "secretaria"
+        | "coordenacao"
+        | "vice_diretor"
+        | "diretor"
+        | "admin"
+      prioridade: "baixa" | "media" | "alta"
+      status_entrega: "em_andamento" | "concluida"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +592,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "aluno",
+        "professor",
+        "secretaria",
+        "coordenacao",
+        "vice_diretor",
+        "diretor",
+        "admin",
+      ],
+      prioridade: ["baixa", "media", "alta"],
+      status_entrega: ["em_andamento", "concluida"],
+    },
   },
 } as const
