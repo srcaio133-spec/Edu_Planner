@@ -1,13 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { ClipboardList, CalendarCheck, Clock, TrendingUp, LogOut } from "lucide-react";
+import { ClipboardList, CalendarCheck, Clock, TrendingUp, School, Users, BookOpen, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Logo } from "@/components/Logo";
-import { ThemeButton } from "@/components/AuthLayout";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mediaPonderada, perfilDe, ROLE_LABEL, rolePrincipal, statusTarefa, type AppRole } from "@/lib/perfil";
+import { mediaPonderada, statusTarefa } from "@/lib/perfil";
+import { fmtData, fmtNota, usePerfil } from "@/lib/dados";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -22,77 +19,101 @@ export const Route = createFileRoute("/_authenticated/painel")({
 });
 
 async function carregar(userId: string) {
-  const [perfil, roles, tarefas, entregas, provas, notas] = await Promise.all([
-    supabase.from("profiles").select("nome").eq("id", userId).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
-    supabase.from("tarefas").select("id,prazo"),
-    supabase.from("entregas").select("tarefa_id,status").eq("aluno_id", userId),
-    supabase.from("provas").select("id,data,peso"),
+  const [tarefas, entregas, provas, notas, turmas, matriculas, roles] = await Promise.all([
+    supabase.from("tarefas").select("id,titulo,prazo,disciplinas(nome)").order("prazo"),
+    supabase.from("entregas").select("tarefa_id,aluno_id,status"),
+    supabase.from("provas").select("id,titulo,data,peso,disciplinas(nome)").order("data"),
     supabase.from("notas").select("prova_id,valor").eq("aluno_id", userId),
+    supabase.from("turmas").select("id", { count: "exact", head: true }),
+    supabase.from("matriculas").select("aluno_id"),
+    supabase.from("user_roles").select("role"),
   ]);
-  const roleList = (roles.data ?? []).map((r) => r.role as AppRole);
-  const ent = new Map((entregas.data ?? []).map((e) => [e.tarefa_id, e.status]));
+  const minhas = new Map((entregas.data ?? []).filter((e) => e.aluno_id === userId).map((e) => [e.tarefa_id, e.status]));
   const agora = new Date();
   const fimHoje = new Date(); fimHoje.setHours(23, 59, 59, 999);
-  const st = (tarefas.data ?? []).map((t) => ({ prazo: new Date(t.prazo), s: statusTarefa(new Date(t.prazo), ent.get(t.id), agora) }));
-  const pendentes = st.filter((t) => t.s !== "concluida").length;
-  const hoje = st.filter((t) => t.s !== "concluida" && t.prazo >= agora && t.prazo <= fimHoje).length;
   const em7 = new Date(agora.getTime() + 7 * 864e5);
-  const proximas = (provas.data ?? []).filter((p) => new Date(p.data) >= agora && new Date(p.data) <= em7).length;
+  const ts = (tarefas.data ?? []).map((t) => ({ ...t, s: statusTarefa(new Date(t.prazo), minhas.get(t.id), agora) }));
   const pesos = new Map((provas.data ?? []).map((p) => [p.id, Number(p.peso)]));
-  const media = mediaPonderada((notas.data ?? []).map((n) => ({ valor: Number(n.valor), peso: pesos.get(n.prova_id) ?? 1 })));
-  return { nome: perfil.data?.nome ?? "", roles: roleList, pendentes, hoje, proximas, media, total: st.length };
+  const proxProvas = (provas.data ?? []).filter((p) => new Date(p.data) >= agora);
+  return {
+    tarefas: ts,
+    pendentes: ts.filter((t) => t.s !== "concluida").length,
+    hoje: ts.filter((t) => t.s !== "concluida" && new Date(t.prazo) >= agora && new Date(t.prazo) <= fimHoje).length,
+    proximas: proxProvas.filter((p) => new Date(p.data) <= em7).length,
+    proxProvas,
+    media: mediaPonderada((notas.data ?? []).map((n) => ({ valor: Number(n.valor), peso: pesos.get(n.prova_id) ?? 1 }))),
+    concluidasTurma: (entregas.data ?? []).filter((e) => e.status === "concluida").length,
+    totalTurmas: turmas.count ?? 0,
+    totalAlunos: new Set((matriculas.data ?? []).map((m) => m.aluno_id)).size,
+    totalProfessores: (roles.data ?? []).filter((r) => r.role === "professor").length,
+    totalProvas: (provas.data ?? []).length,
+  };
+}
+
+function Card({ t, v, s, I, bg, loading }: { t: string; v: React.ReactNode; s: string; I: typeof Clock; bg: string; loading: boolean }) {
+  return (
+    <div className="flex gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
+      <div className={`grid size-14 shrink-0 place-items-center rounded-xl ${bg}`}><I className="size-7" /></div>
+      <div>
+        <div className="text-sm text-muted-foreground">{t}</div>
+        {loading ? <Skeleton className="my-1 h-8 w-12" /> : <div className="text-3xl font-extrabold">{v}</div>}
+        <div className="text-xs text-muted-foreground">{s}</div>
+      </div>
+    </div>
+  );
 }
 
 function Painel() {
   const { user } = Route.useRouteContext();
-  const navigate = useNavigate();
+  const { data: p } = usePerfil(user.id);
   const { data, isLoading } = useQuery({ queryKey: ["painel", user.id], queryFn: () => carregar(user.id) });
-  const perfil = data ? perfilDe(data.roles) : "aluno";
+  const perfil = p?.perfil ?? "aluno";
 
-  useEffect(() => {
-    document.documentElement.dataset["perfil"] = perfil;
-  }, [perfil]);
-
-  async function sair() {
-    await supabase.auth.signOut();
-    navigate({ to: "/", replace: true });
-  }
-
-  const cards = [
-    { t: "Tarefas pendentes", v: data?.pendentes, s: "tarefas para concluir", I: ClipboardList, bg: "bg-sky-soft text-primary" },
-    { t: "Tarefas para hoje", v: data?.hoje, s: "não se esqueça!", I: CalendarCheck, bg: "bg-success-soft text-success" },
-    { t: "Próximas provas", v: data?.proximas, s: "nos próximos 7 dias", I: Clock, bg: "bg-warning-soft text-warning" },
-    { t: "Média geral", v: data?.media != null ? data.media.toFixed(1).replace(".", ",") : "—", s: "média ponderada", I: TrendingUp, bg: "bg-violet-soft text-violet" },
-  ];
+  const cards =
+    perfil === "gestao"
+      ? [
+          { t: "Turmas", v: data?.totalTurmas, s: "cadastradas", I: School, bg: "bg-sky-soft text-primary" },
+          { t: "Alunos", v: data?.totalAlunos, s: "matriculados", I: Users, bg: "bg-success-soft text-success" },
+          { t: "Professores", v: data?.totalProfessores, s: "ativos", I: BookOpen, bg: "bg-warning-soft text-warning" },
+          { t: "Atividades", v: (data?.tarefas.length ?? 0) + (data?.totalProvas ?? 0), s: "tarefas e provas", I: FileText, bg: "bg-violet-soft text-violet" },
+        ]
+      : perfil === "professor"
+        ? [
+            { t: "Tarefas criadas", v: data?.tarefas.length, s: "nas suas turmas", I: ClipboardList, bg: "bg-sky-soft text-primary" },
+            { t: "Entregas concluídas", v: data?.concluidasTurma, s: "pelos alunos", I: CalendarCheck, bg: "bg-success-soft text-success" },
+            { t: "Próximas provas", v: data?.proximas, s: "nos próximos 7 dias", I: Clock, bg: "bg-warning-soft text-warning" },
+            { t: "Provas", v: data?.totalProvas, s: "cadastradas", I: FileText, bg: "bg-violet-soft text-violet" },
+          ]
+        : [
+            { t: "Tarefas pendentes", v: data?.pendentes, s: "tarefas para concluir", I: ClipboardList, bg: "bg-sky-soft text-primary" },
+            { t: "Tarefas para hoje", v: data?.hoje, s: "não se esqueça!", I: CalendarCheck, bg: "bg-success-soft text-success" },
+            { t: "Próximas provas", v: data?.proximas, s: "nos próximos 7 dias", I: Clock, bg: "bg-warning-soft text-warning" },
+            { t: "Média geral", v: fmtNota(data?.media ?? null), s: "média ponderada", I: TrendingUp, bg: "bg-violet-soft text-violet" },
+          ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between border-b border-border bg-sidebar px-6 py-4">
-        <Logo subtitle="Organize seus estudos" />
-        <div className="flex items-center gap-3">
-          <ThemeButton />
-          <Button variant="outline" className="rounded-xl" onClick={sair}><LogOut /> Sair</Button>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl p-6">
-        <h1 className="text-3xl font-extrabold">Olá, {data?.nome.split(" ")[0] || "..."}! 👋</h1>
-        <p className="mt-1 text-muted-foreground">
-          {data ? ROLE_LABEL[rolePrincipal(data.roles)] + " · " : ""}Vamos organizar o seu dia e alcançar grandes conquistas.
-        </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map(({ t, v, s, I, bg }) => (
-            <div key={t} className="flex gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
-              <div className={`grid size-14 place-items-center rounded-xl ${bg}`}><I className="size-7" /></div>
-              <div>
-                <div className="text-sm text-muted-foreground">{t}</div>
-                {isLoading ? <Skeleton className="my-1 h-8 w-12" /> : <div className="text-3xl font-extrabold">{v}</div>}
-                <div className="text-xs text-muted-foreground">{s}</div>
-              </div>
-            </div>
+    <>
+      <h1 className="text-3xl font-extrabold">Olá, {p?.nome.split(" ")[0] || "..."}! 👋</h1>
+      <p className="mt-1 text-muted-foreground">Vamos organizar o seu dia e alcançar grandes conquistas.</p>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((c) => <Card key={c.t} {...c} loading={isLoading} />)}
+      </div>
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between"><h2 className="font-bold">Próximas tarefas</h2><Link to="/tarefas" className="text-sm text-primary">Ver todas</Link></div>
+          {(data?.tarefas ?? []).filter((t) => t.s !== "concluida").slice(0, 5).map((t) => (
+            <div key={t.id} className="flex justify-between border-t border-border py-2 text-sm"><span>{t.titulo} <span className="text-muted-foreground">· {t.disciplinas?.nome}</span></span><span className={t.s === "atrasada" ? "text-destructive" : "text-muted-foreground"}>{fmtData(t.prazo)}</span></div>
           ))}
-        </div>
-      </main>
-    </div>
+          {data && data.tarefas.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma tarefa por aqui.</p>}
+        </section>
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between"><h2 className="font-bold">Próximas provas</h2><Link to="/provas" className="text-sm text-primary">Ver todas</Link></div>
+          {(data?.proxProvas ?? []).slice(0, 5).map((pr) => (
+            <div key={pr.id} className="flex justify-between border-t border-border py-2 text-sm"><span>{pr.titulo} <span className="text-muted-foreground">· {pr.disciplinas?.nome}</span></span><span className="text-muted-foreground">{fmtData(pr.data)}</span></div>
+          ))}
+          {data && data.proxProvas.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma prova agendada.</p>}
+        </section>
+      </div>
+    </>
   );
 }

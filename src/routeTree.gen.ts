@@ -13,7 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedDisciplinasRouteImport } from './routes/_authenticated/disciplinas'
+import { Route as AuthenticatedNotasRouteImport } from './routes/_authenticated/notas'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedProvasRouteImport } from './routes/_authenticated/provas'
+import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
+import { Route as AuthenticatedTurmasRouteImport } from './routes/_authenticated/turmas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,9 +41,45 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDisciplinasRoute =
+  AuthenticatedDisciplinasRouteImport.update({
+    id: '/disciplinas',
+    path: '/disciplinas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedNotasRoute = AuthenticatedNotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProvasRoute = AuthenticatedProvasRouteImport.update({
+  id: '/provas',
+  path: '/provas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
+  id: '/tarefas',
+  path: '/tarefas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTurmasRoute = AuthenticatedTurmasRouteImport.update({
+  id: '/turmas',
+  path: '/turmas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -44,13 +87,27 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
+  '/disciplinas': typeof AuthenticatedDisciplinasRoute
+  '/notas': typeof AuthenticatedNotasRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/provas': typeof AuthenticatedProvasRoute
+  '/tarefas': typeof AuthenticatedTarefasRoute
+  '/turmas': typeof AuthenticatedTurmasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
+  '/disciplinas': typeof AuthenticatedDisciplinasRoute
+  '/notas': typeof AuthenticatedNotasRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/provas': typeof AuthenticatedProvasRoute
+  '/tarefas': typeof AuthenticatedTarefasRoute
+  '/turmas': typeof AuthenticatedTurmasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,20 +115,56 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/disciplinas': typeof AuthenticatedDisciplinasRoute
+  '/_authenticated/notas': typeof AuthenticatedNotasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/_authenticated/provas': typeof AuthenticatedProvasRoute
+  '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/turmas': typeof AuthenticatedTurmasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cadastro' | '/reset-password' | '/painel'
+  fullPaths:
+    | '/'
+    | '/cadastro'
+    | '/reset-password'
+    | '/agenda'
+    | '/disciplinas'
+    | '/notas'
+    | '/painel'
+    | '/perfil'
+    | '/provas'
+    | '/tarefas'
+    | '/turmas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cadastro' | '/reset-password' | '/painel'
+  to:
+    | '/'
+    | '/cadastro'
+    | '/reset-password'
+    | '/agenda'
+    | '/disciplinas'
+    | '/notas'
+    | '/painel'
+    | '/perfil'
+    | '/provas'
+    | '/tarefas'
+    | '/turmas'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/cadastro'
     | '/reset-password'
+    | '/_authenticated/agenda'
+    | '/_authenticated/disciplinas'
+    | '/_authenticated/notas'
     | '/_authenticated/painel'
+    | '/_authenticated/perfil'
+    | '/_authenticated/provas'
+    | '/_authenticated/tarefas'
+    | '/_authenticated/turmas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -111,6 +204,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/agenda': {
+      id: '/_authenticated/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/disciplinas': {
+      id: '/_authenticated/disciplinas'
+      path: '/disciplinas'
+      fullPath: '/disciplinas'
+      preLoaderRoute: typeof AuthenticatedDisciplinasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notas': {
+      id: '/_authenticated/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof AuthenticatedNotasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
@@ -118,15 +232,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/provas': {
+      id: '/_authenticated/provas'
+      path: '/provas'
+      fullPath: '/provas'
+      preLoaderRoute: typeof AuthenticatedProvasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tarefas': {
+      id: '/_authenticated/tarefas'
+      path: '/tarefas'
+      fullPath: '/tarefas'
+      preLoaderRoute: typeof AuthenticatedTarefasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/turmas': {
+      id: '/_authenticated/turmas'
+      path: '/turmas'
+      fullPath: '/turmas'
+      preLoaderRoute: typeof AuthenticatedTurmasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedDisciplinasRoute: typeof AuthenticatedDisciplinasRoute
+  AuthenticatedNotasRoute: typeof AuthenticatedNotasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
+  AuthenticatedProvasRoute: typeof AuthenticatedProvasRoute
+  AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedTurmasRoute: typeof AuthenticatedTurmasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedDisciplinasRoute: AuthenticatedDisciplinasRoute,
+  AuthenticatedNotasRoute: AuthenticatedNotasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
+  AuthenticatedProvasRoute: AuthenticatedProvasRoute,
+  AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedTurmasRoute: AuthenticatedTurmasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
