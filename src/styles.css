@@ -42,6 +42,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-accent: var(--primary-soft);
+  --color-sidebar-accent-foreground: var(--primary);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--ring);
   --color-on-brand: var(--on-brand);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
