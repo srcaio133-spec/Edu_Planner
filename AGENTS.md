@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Signed-in pages live under src/routes/_authenticated/ and share the sidebar layout in its route.tsx; menu items per profile are defined in src/components/AppSidebar.tsx (single source for navigation).
+- Shared data hooks (profile/roles, turmas/disciplinas) live in src/lib/dados.ts so pages reuse the same query keys.
