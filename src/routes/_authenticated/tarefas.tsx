@@ -60,7 +60,7 @@ function Tarefas() {
     const { error } = e
       ? await supabase.from("entregas").update({ status, concluida_em }).eq("id", e.id)
       : await supabase.from("entregas").insert({ tarefa_id: tarefaId, aluno_id: user.id, status, concluida_em });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(status === "concluida" ? "Tarefa concluída!" : "Tarefa em andamento");
     recarregar();
   }
@@ -68,7 +68,7 @@ function Tarefas() {
   async function excluir(id: string) {
     if (!confirm("Excluir esta tarefa?")) return;
     const { error } = await supabase.from("tarefas").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Tarefa excluída");
     recarregar();
   }
@@ -146,14 +146,14 @@ function FormTarefa({ inicial, userId, onClose, onSaved }: { inicial: Partial<Ta
   const [salvando, setSalvando] = useState(false);
   async function salvar(ev: React.FormEvent) {
     ev.preventDefault();
-    if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.prazo) return toast.error("Preencha título, turma, disciplina e prazo.");
+    if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.prazo) { toast.error("Preencha título, turma, disciplina e prazo."); return; }
     setSalvando(true);
     const row = { titulo: f.titulo, descricao: f.descricao ?? null, turma_id: f.turma_id, disciplina_id: f.disciplina_id, prazo: localParaIso(f.prazo), prioridade: f.prioridade ?? "media" };
     const { error } = inicial.id
       ? await supabase.from("tarefas").update(row).eq("id", inicial.id)
       : await supabase.from("tarefas").insert({ ...row, professor_id: userId });
     setSalvando(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Tarefa salva");
     onSaved(); onClose();
   }

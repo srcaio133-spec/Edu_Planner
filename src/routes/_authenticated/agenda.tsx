@@ -61,13 +61,13 @@ function Agenda() {
     const d = new Date(sel); d.setHours(9, 0, 0, 0);
     const oficial = p?.perfil === "gestao";
     const { error } = await supabase.from("eventos").insert({ titulo: titulo.trim(), inicio: d.toISOString(), oficial, dono_id: user.id, tipo: oficial ? "evento" : "lembrete" });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setTitulo(""); toast.success(oficial ? "Evento criado" : "Lembrete criado");
     qc.invalidateQueries({ queryKey: ["agenda"] });
   }
   async function remover(id: string) {
     const { error } = await supabase.from("eventos").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["agenda"] });
   }
 

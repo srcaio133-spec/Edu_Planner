@@ -30,9 +30,9 @@ function Perfil() {
   useEffect(() => { if (data) { setNome(data.nome); setTel(data.telefone ?? ""); } }, [data]);
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim()) return toast.error("Informe seu nome.");
+    if (!nome.trim()) { toast.error("Informe seu nome."); return; }
     const { error } = await supabase.from("profiles").update({ nome: nome.trim(), telefone: tel.trim() || null }).eq("id", user.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Perfil atualizado");
     qc.invalidateQueries({ queryKey: ["perfil", user.id] });
   }
