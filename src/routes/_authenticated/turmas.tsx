@@ -43,13 +43,13 @@ function Turmas() {
     e.preventDefault();
     if (!nome.trim()) return;
     const { error } = await supabase.from("turmas").insert({ nome: nome.trim() });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setNome(""); toast.success("Turma criada"); recarregar();
   }
   async function excluir(id: string) {
     if (!confirm("Excluir esta turma?")) return;
     const { error } = await supabase.from("turmas").delete().eq("id", id);
-    if (error) return toast.error("Não foi possível excluir: a turma possui registros vinculados.");
+    if (error) { toast.error("Não foi possível excluir: a turma possui registros vinculados."); return; }
     recarregar();
   }
   return (

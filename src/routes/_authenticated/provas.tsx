@@ -38,7 +38,7 @@ function Provas() {
   async function excluir(id: string) {
     if (!confirm("Excluir esta prova?")) return;
     const { error } = await supabase.from("provas").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     recarregar();
   }
   const agora = Date.now();
@@ -77,9 +77,9 @@ function NovaProva({ onClose, onSaved }: { onClose: () => void; onSaved: () => v
   const [f, setF] = useState({ titulo: "", conteudo: "", turma_id: "", disciplina_id: "", data: "", peso: "1" });
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.data) return toast.error("Preencha todos os campos obrigatórios.");
+    if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.data) { toast.error("Preencha todos os campos obrigatórios."); return; }
     const { error } = await supabase.from("provas").insert({ ...f, data: localParaIso(f.data), peso: Number(f.peso.replace(",", ".")) || 1 });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Prova criada"); onSaved(); onClose();
   }
   const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
@@ -125,11 +125,11 @@ function LancarNotas({ prova, onClose }: { prova: { id: string; turma_id: string
       const v = valores[a.id];
       if (v == null || v === "") continue;
       const valor = Number(v.replace(",", "."));
-      if (isNaN(valor) || valor < 0 || valor > 10) return toast.error(`Nota inválida para ${a.nome} (0 a 10).`);
+      if (isNaN(valor) || valor < 0 || valor > 10) { toast.error(`Nota inválida para ${a.nome} (0 a 10).`); return; }
       const { error } = a.nota
         ? await supabase.from("notas").update({ valor }).eq("id", a.nota.id)
         : await supabase.from("notas").insert({ prova_id: prova.id, aluno_id: a.id, valor });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
     }
     toast.success("Notas salvas");
     qc.invalidateQueries({ queryKey: ["lancar", prova.id] });
