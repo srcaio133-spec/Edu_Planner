@@ -65,6 +65,30 @@ export type Database = {
         }
         Relationships: []
       }
+      edumind_mensagens: {
+        Row: {
+          created_at: string
+          id: string
+          parts: Json
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parts: Json
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parts?: Json
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       entregas: {
         Row: {
           aluno_id: string
@@ -307,8 +331,125 @@ export type Database = {
           },
         ]
       }
+      questoes: {
+        Row: {
+          alternativas: Json
+          area: string
+          autor_id: string | null
+          categoria: Database["public"]["Enums"]["categoria_exame"]
+          created_at: string
+          enunciado: string
+          id: string
+        }
+        Insert: {
+          alternativas: Json
+          area: string
+          autor_id?: string | null
+          categoria: Database["public"]["Enums"]["categoria_exame"]
+          created_at?: string
+          enunciado: string
+          id?: string
+        }
+        Update: {
+          alternativas?: Json
+          area?: string
+          autor_id?: string | null
+          categoria?: Database["public"]["Enums"]["categoria_exame"]
+          created_at?: string
+          enunciado?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      questoes_gabarito: {
+        Row: {
+          correta: number
+          explicacao: string
+          questao_id: string
+        }
+        Insert: {
+          correta: number
+          explicacao?: string
+          questao_id: string
+        }
+        Update: {
+          correta?: number
+          explicacao?: string
+          questao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questoes_gabarito_questao_id_fkey"
+            columns: ["questao_id"]
+            isOneToOne: true
+            referencedRelation: "questoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulado_questoes: {
+        Row: {
+          ordem: number
+          questao_id: string
+          simulado_id: string
+        }
+        Insert: {
+          ordem?: number
+          questao_id: string
+          simulado_id: string
+        }
+        Update: {
+          ordem?: number
+          questao_id?: string
+          simulado_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simulado_questoes_questao_id_fkey"
+            columns: ["questao_id"]
+            isOneToOne: false
+            referencedRelation: "questoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "simulado_questoes_simulado_id_fkey"
+            columns: ["simulado_id"]
+            isOneToOne: false
+            referencedRelation: "simulados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulados: {
+        Row: {
+          autor_id: string | null
+          categoria: Database["public"]["Enums"]["categoria_exame"]
+          created_at: string
+          duracao_min: number
+          id: string
+          titulo: string
+        }
+        Insert: {
+          autor_id?: string | null
+          categoria: Database["public"]["Enums"]["categoria_exame"]
+          created_at?: string
+          duracao_min?: number
+          id?: string
+          titulo: string
+        }
+        Update: {
+          autor_id?: string | null
+          categoria?: Database["public"]["Enums"]["categoria_exame"]
+          created_at?: string
+          duracao_min?: number
+          id?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
       tarefas: {
         Row: {
+          categoria: Database["public"]["Enums"]["categoria_exame"] | null
           created_at: string
           descricao: string | null
           disciplina_id: string
@@ -321,6 +462,7 @@ export type Database = {
           turma_id: string
         }
         Insert: {
+          categoria?: Database["public"]["Enums"]["categoria_exame"] | null
           created_at?: string
           descricao?: string | null
           disciplina_id: string
@@ -333,6 +475,7 @@ export type Database = {
           turma_id: string
         }
         Update: {
+          categoria?: Database["public"]["Enums"]["categoria_exame"] | null
           created_at?: string
           descricao?: string | null
           disciplina_id?: string
@@ -357,6 +500,47 @@ export type Database = {
             columns: ["turma_id"]
             isOneToOne: false
             referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tentativas: {
+        Row: {
+          acertos: number
+          aluno_id: string
+          created_at: string
+          id: string
+          nota: number
+          respostas: Json
+          simulado_id: string
+          total: number
+        }
+        Insert: {
+          acertos: number
+          aluno_id: string
+          created_at?: string
+          id?: string
+          nota: number
+          respostas: Json
+          simulado_id: string
+          total: number
+        }
+        Update: {
+          acertos?: number
+          aluno_id?: string
+          created_at?: string
+          id?: string
+          nota?: number
+          respostas?: Json
+          simulado_id?: string
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tentativas_simulado_id_fkey"
+            columns: ["simulado_id"]
+            isOneToOne: false
+            referencedRelation: "simulados"
             referencedColumns: ["id"]
           },
         ]
@@ -445,6 +629,10 @@ export type Database = {
     }
     Functions: {
       aluno_na_turma: { Args: { _turma: string }; Returns: boolean }
+      enviar_tentativa: {
+        Args: { _respostas: Json; _simulado: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -453,6 +641,7 @@ export type Database = {
         Returns: boolean
       }
       is_gestao: { Args: { _user_id: string }; Returns: boolean }
+      pode_gerir_questoes: { Args: { _u: string }; Returns: boolean }
       prof_da_turma: { Args: { _turma: string }; Returns: boolean }
     }
     Enums: {
@@ -464,6 +653,7 @@ export type Database = {
         | "vice_diretor"
         | "diretor"
         | "admin"
+      categoria_exame: "enem" | "ssa" | "vestibular" | "concurso"
       prioridade: "baixa" | "media" | "alta"
       status_entrega: "em_andamento" | "concluida"
     }
@@ -602,6 +792,7 @@ export const Constants = {
         "diretor",
         "admin",
       ],
+      categoria_exame: ["enem", "ssa", "vestibular", "concurso"],
       prioridade: ["baixa", "media", "alta"],
       status_entrega: ["em_andamento", "concluida"],
     },
