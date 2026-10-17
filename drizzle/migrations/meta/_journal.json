@@ -8,6 +8,13 @@
       "when": 1792088402873,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792196873859,
+      "tag": "0001_edumind_simulados",
+      "breakpoints": true
     }
   ]
 }
