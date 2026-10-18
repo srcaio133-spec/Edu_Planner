@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/tarefas")({
 const ROTULO: Record<StatusTarefa, string> = { pendente: "Pendente", em_andamento: "Em andamento", concluida: "Concluída", atrasada: "Atrasada" };
 const COR: Record<StatusTarefa, string> = { pendente: "bg-sky-soft text-primary", em_andamento: "bg-warning-soft text-warning", concluida: "bg-success-soft text-success", atrasada: "bg-danger-soft text-destructive" };
 
-type Tarefa = { id: string; titulo: string; descricao: string | null; prazo: string; prioridade: "baixa" | "media" | "alta"; turma_id: string; disciplina_id: string };
+type Tarefa = { id: string; titulo: string; descricao: string | null; prazo: string; prioridade: "baixa" | "media" | "alta"; turma_id: string; disciplina_id: string; categoria?: "enem" | "ssa" | "vestibular" | "concurso" | null };
 
 function Tarefas() {
   const { user } = Route.useRouteContext();
@@ -93,6 +93,7 @@ function Tarefas() {
               <div className="flex flex-wrap items-center gap-2 font-semibold">{t.titulo}
                 {!gere && <span className={`rounded-full px-2 py-0.5 text-xs ${COR[t.s]}`}>{ROTULO[t.s]}</span>}
                 <Badge variant="outline">{t.prioridade}</Badge>
+                {t.categoria && <Badge>{t.categoria.toUpperCase()}</Badge>}
               </div>
               <div className="text-sm text-muted-foreground">{t.disciplinas?.nome} · {t.turmas?.nome} · prazo {fmtData(t.prazo)}</div>
               {t.descricao && <p className="mt-1 text-sm">{t.descricao}</p>}
@@ -148,7 +149,7 @@ function FormTarefa({ inicial, userId, onClose, onSaved }: { inicial: Partial<Ta
     ev.preventDefault();
     if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.prazo) { toast.error("Preencha título, turma, disciplina e prazo."); return; }
     setSalvando(true);
-    const row = { titulo: f.titulo, descricao: f.descricao ?? null, turma_id: f.turma_id, disciplina_id: f.disciplina_id, prazo: localParaIso(f.prazo), prioridade: f.prioridade ?? "media" };
+    const row = { titulo: f.titulo, descricao: f.descricao ?? null, turma_id: f.turma_id, disciplina_id: f.disciplina_id, prazo: localParaIso(f.prazo), prioridade: f.prioridade ?? "media", categoria: f.categoria ?? null };
     const { error } = inicial.id
       ? await supabase.from("tarefas").update(row).eq("id", inicial.id)
       : await supabase.from("tarefas").insert({ ...row, professor_id: userId });
@@ -170,6 +171,7 @@ function FormTarefa({ inicial, userId, onClose, onSaved }: { inicial: Partial<Ta
             <div><Label>Disciplina</Label><select className={sel} value={f.disciplina_id ?? ""} onChange={(e) => setF({ ...f, disciplina_id: e.target.value })}><option value="">Selecione</option>{base?.disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}</select></div>
             <div><Label>Prazo</Label><Input type="datetime-local" value={f.prazo} onChange={(e) => setF({ ...f, prazo: e.target.value })} /></div>
             <div><Label>Prioridade</Label><select className={sel} value={f.prioridade} onChange={(e) => setF({ ...f, prioridade: e.target.value as Tarefa["prioridade"] })}><option value="baixa">Baixa</option><option value="media">Média</option><option value="alta">Alta</option></select></div>
+            <div><Label>Preparatório</Label><select className={sel} value={f.categoria ?? ""} onChange={(e) => setF({ ...f, categoria: (e.target.value || null) as Tarefa["categoria"] })}><option value="">Nenhum</option><option value="enem">ENEM</option><option value="ssa">SSA</option><option value="vestibular">Vestibular</option><option value="concurso">Concurso</option></select></div>
           </div>
           <Button type="submit" className="w-full rounded-xl" disabled={salvando}>Salvar</Button>
         </form>

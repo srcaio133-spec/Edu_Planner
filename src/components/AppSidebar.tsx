@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ClipboardList, FileText, GraduationCap, CalendarDays, School, BookOpen, UserRound } from "lucide-react";
+import { LayoutDashboard, ClipboardList, FileText, GraduationCap, CalendarDays, School, BookOpen, UserRound, Trophy } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -13,6 +13,7 @@ const ITENS: Item[] = [
   { title: "Tarefas", url: "/tarefas", icon: ClipboardList, perfis: ["aluno", "professor", "gestao"] },
   { title: "Provas", url: "/provas", icon: FileText, perfis: ["aluno", "professor", "gestao"] },
   { title: "Notas", url: "/notas", icon: GraduationCap, perfis: ["aluno", "professor", "gestao"] },
+  { title: "Simulados", url: "/simulados", icon: Trophy, perfis: ["aluno", "professor", "gestao"] },
   { title: "Agenda", url: "/agenda", icon: CalendarDays, perfis: ["aluno", "professor", "gestao"] },
   { title: "Turmas", url: "/turmas", icon: School, perfis: ["gestao"] },
   { title: "Disciplinas", url: "/disciplinas", icon: BookOpen, perfis: ["gestao"] },

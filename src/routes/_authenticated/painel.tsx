@@ -19,15 +19,17 @@ export const Route = createFileRoute("/_authenticated/painel")({
 });
 
 async function carregar(userId: string) {
-  const [tarefas, entregas, provas, notas, turmas, matriculas, roles] = await Promise.all([
+  const [tarefas, entregas, provas, notas, turmas, matriculas, roles, tentativas] = await Promise.all([
     supabase.from("tarefas").select("id,titulo,prazo,disciplinas(nome)").order("prazo"),
     supabase.from("entregas").select("tarefa_id,aluno_id,status"),
     supabase.from("provas").select("id,titulo,data,peso,disciplinas(nome)").order("data"),
     supabase.from("notas").select("prova_id,valor").eq("aluno_id", userId),
     supabase.from("turmas").select("id", { count: "exact", head: true }),
-    supabase.from("matriculas").select("aluno_id"),
-    supabase.from("user_roles").select("role"),
+    supabase.from("matriculas").select("aluno_id").eq("status", "ativa"),
+    supabase.from("user_roles").select("user_id,role").eq("role", "professor"),
+    supabase.from("tentativas").select("nota").eq("aluno_id", userId),
   ]);
+  const notasSim = (tentativas.data ?? []).map((t) => Number(t.nota));
   const minhas = new Map((entregas.data ?? []).filter((e) => e.aluno_id === userId).map((e) => [e.tarefa_id, e.status]));
   const agora = new Date();
   const fimHoje = new Date(); fimHoje.setHours(23, 59, 59, 999);
@@ -45,8 +47,10 @@ async function carregar(userId: string) {
     concluidasTurma: (entregas.data ?? []).filter((e) => e.status === "concluida").length,
     totalTurmas: turmas.count ?? 0,
     totalAlunos: new Set((matriculas.data ?? []).map((m) => m.aluno_id)).size,
-    totalProfessores: (roles.data ?? []).filter((r) => r.role === "professor").length,
+    totalProfessores: new Set((roles.data ?? []).map((r) => r.user_id)).size,
     totalProvas: (provas.data ?? []).length,
+    simulados: notasSim.length,
+    mediaSimulados: notasSim.length ? notasSim.reduce((a, b) => a + b, 0) / notasSim.length : null,
   };
 }
 
