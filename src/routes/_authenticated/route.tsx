@@ -9,6 +9,7 @@ import { ThemeButton } from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { usePerfil } from "@/lib/dados";
 import { ROLE_LABEL, rolePrincipal } from "@/lib/perfil";
+import { EduMindWidget } from "@/components/EduMindWidget";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -51,7 +52,8 @@ function Layout() {
             <ThemeButton />
             <Button variant="outline" className="rounded-xl" onClick={sair}><LogOut /> <span className="hidden sm:inline">Sair</span></Button>
           </header>
-          <main className="mx-auto w-full max-w-6xl flex-1 p-4 sm:p-6"><Outlet /></main>
+          <main className="mx-auto w-full max-w-6xl flex-1 p-4 pb-24 sm:p-6 sm:pb-24"><Outlet /></main>
+          {data && <EduMindWidget userId={user.id} perfil={perfil} />}
         </div>
       </div>
     </SidebarProvider>

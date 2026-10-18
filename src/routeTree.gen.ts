@@ -21,6 +21,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedProvasRouteImport } from './routes/_authenticated/provas'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedTurmasRouteImport } from './routes/_authenticated/turmas'
+import { Route as ApiEdumindRouteImport } from './routes/api/edumind'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +83,11 @@ const AuthenticatedTurmasRoute = AuthenticatedTurmasRouteImport.update({
   path: '/turmas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiEdumindRoute = ApiEdumindRouteImport.update({
+  id: '/api/edumind',
+  path: '/api/edumind',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/provas': typeof AuthenticatedProvasRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/turmas': typeof AuthenticatedTurmasRoute
+  '/api/edumind': typeof ApiEdumindRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/provas': typeof AuthenticatedProvasRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/turmas': typeof AuthenticatedTurmasRoute
+  '/api/edumind': typeof ApiEdumindRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/provas': typeof AuthenticatedProvasRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/turmas': typeof AuthenticatedTurmasRoute
+  '/api/edumind': typeof ApiEdumindRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/provas'
     | '/tarefas'
     | '/turmas'
+    | '/api/edumind'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/provas'
     | '/tarefas'
     | '/turmas'
+    | '/api/edumind'
   id:
     | '__root__'
     | '/'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/provas'
     | '/_authenticated/tarefas'
     | '/_authenticated/turmas'
+    | '/api/edumind'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -172,6 +184,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CadastroRoute: typeof CadastroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiEdumindRoute: typeof ApiEdumindRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -260,6 +273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTurmasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/edumind': {
+      id: '/api/edumind'
+      path: '/api/edumind'
+      fullPath: '/api/edumind'
+      preLoaderRoute: typeof ApiEdumindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CadastroRoute: CadastroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiEdumindRoute: ApiEdumindRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
