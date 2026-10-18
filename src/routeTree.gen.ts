@@ -19,6 +19,7 @@ import { Route as AuthenticatedNotasRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedProvasRouteImport } from './routes/_authenticated/provas'
+import { Route as AuthenticatedSimuladosRouteImport } from './routes/_authenticated/simulados'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedTurmasRouteImport } from './routes/_authenticated/turmas'
 import { Route as ApiEdumindRouteImport } from './routes/api/edumind'
@@ -73,6 +74,11 @@ const AuthenticatedProvasRoute = AuthenticatedProvasRouteImport.update({
   path: '/provas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSimuladosRoute = AuthenticatedSimuladosRouteImport.update({
+  id: '/simulados',
+  path: '/simulados',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
   id: '/tarefas',
   path: '/tarefas',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/provas': typeof AuthenticatedProvasRoute
+  '/simulados': typeof AuthenticatedSimuladosRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/turmas': typeof AuthenticatedTurmasRoute
   '/api/edumind': typeof ApiEdumindRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/provas': typeof AuthenticatedProvasRoute
+  '/simulados': typeof AuthenticatedSimuladosRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/turmas': typeof AuthenticatedTurmasRoute
   '/api/edumind': typeof ApiEdumindRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/provas': typeof AuthenticatedProvasRoute
+  '/_authenticated/simulados': typeof AuthenticatedSimuladosRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/turmas': typeof AuthenticatedTurmasRoute
   '/api/edumind': typeof ApiEdumindRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/perfil'
     | '/provas'
+    | '/simulados'
     | '/tarefas'
     | '/turmas'
     | '/api/edumind'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/perfil'
     | '/provas'
+    | '/simulados'
     | '/tarefas'
     | '/turmas'
     | '/api/edumind'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel'
     | '/_authenticated/perfil'
     | '/_authenticated/provas'
+    | '/_authenticated/simulados'
     | '/_authenticated/tarefas'
     | '/_authenticated/turmas'
     | '/api/edumind'
@@ -259,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProvasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/simulados': {
+      id: '/_authenticated/simulados'
+      path: '/simulados'
+      fullPath: '/simulados'
+      preLoaderRoute: typeof AuthenticatedSimuladosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tarefas': {
       id: '/_authenticated/tarefas'
       path: '/tarefas'
@@ -290,6 +309,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedProvasRoute: typeof AuthenticatedProvasRoute
+  AuthenticatedSimuladosRoute: typeof AuthenticatedSimuladosRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
   AuthenticatedTurmasRoute: typeof AuthenticatedTurmasRoute
 }
@@ -301,6 +321,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedProvasRoute: AuthenticatedProvasRoute,
+  AuthenticatedSimuladosRoute: AuthenticatedSimuladosRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
   AuthenticatedTurmasRoute: AuthenticatedTurmasRoute,
 }
