@@ -44,6 +44,138 @@ export type Database = {
         }
         Relationships: []
       }
+      comunicados: {
+        Row: {
+          aprovado_por: string | null
+          autor_id: string
+          corpo: string
+          created_at: string
+          destino: string
+          id: string
+          motivo: string | null
+          perfil_destino: string | null
+          publicado_em: string | null
+          status: string
+          titulo: string
+          turma_id: string | null
+        }
+        Insert: {
+          aprovado_por?: string | null
+          autor_id?: string
+          corpo: string
+          created_at?: string
+          destino?: string
+          id?: string
+          motivo?: string | null
+          perfil_destino?: string | null
+          publicado_em?: string | null
+          status?: string
+          titulo: string
+          turma_id?: string | null
+        }
+        Update: {
+          aprovado_por?: string | null
+          autor_id?: string
+          corpo?: string
+          created_at?: string
+          destino?: string
+          id?: string
+          motivo?: string | null
+          perfil_destino?: string | null
+          publicado_em?: string | null
+          status?: string
+          titulo?: string
+          turma_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comunicados_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      desafio_conclusoes: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          desafio_id: string
+          id: string
+          pontos: number
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          desafio_id: string
+          id?: string
+          pontos: number
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          desafio_id?: string
+          id?: string
+          pontos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "desafio_conclusoes_desafio_id_fkey"
+            columns: ["desafio_id"]
+            isOneToOne: false
+            referencedRelation: "desafios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      desafios: {
+        Row: {
+          ativo: boolean
+          autor_id: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          meta: number
+          pontos: number
+          tipo: string
+          titulo: string
+          turma_id: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          autor_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          meta?: number
+          pontos?: number
+          tipo?: string
+          titulo: string
+          turma_id?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          autor_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          meta?: number
+          pontos?: number
+          tipo?: string
+          titulo?: string
+          turma_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "desafios_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disciplinas: {
         Row: {
           cor: string
@@ -161,6 +293,48 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "eventos_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      frequencias: {
+        Row: {
+          aluno_id: string
+          data: string
+          disciplina_id: string
+          id: string
+          presente: boolean
+          turma_id: string
+        }
+        Insert: {
+          aluno_id: string
+          data: string
+          disciplina_id: string
+          id?: string
+          presente?: boolean
+          turma_id: string
+        }
+        Update: {
+          aluno_id?: string
+          data?: string
+          disciplina_id?: string
+          id?: string
+          presente?: boolean
+          turma_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frequencias_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "frequencias_turma_id_fkey"
             columns: ["turma_id"]
             isOneToOne: false
             referencedRelation: "turmas"
@@ -338,6 +512,7 @@ export type Database = {
           autor_id: string | null
           categoria: Database["public"]["Enums"]["categoria_exame"]
           created_at: string
+          disciplina_id: string | null
           enunciado: string
           id: string
         }
@@ -347,6 +522,7 @@ export type Database = {
           autor_id?: string | null
           categoria: Database["public"]["Enums"]["categoria_exame"]
           created_at?: string
+          disciplina_id?: string | null
           enunciado: string
           id?: string
         }
@@ -356,10 +532,19 @@ export type Database = {
           autor_id?: string | null
           categoria?: Database["public"]["Enums"]["categoria_exame"]
           created_at?: string
+          disciplina_id?: string | null
           enunciado?: string
           id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "questoes_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       questoes_gabarito: {
         Row: {
@@ -383,6 +568,68 @@ export type Database = {
             columns: ["questao_id"]
             isOneToOne: true
             referencedRelation: "questoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recompensas: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          custo: number
+          descricao: string | null
+          estoque: number | null
+          id: string
+          titulo: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          custo: number
+          descricao?: string | null
+          estoque?: number | null
+          id?: string
+          titulo: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          custo?: number
+          descricao?: string | null
+          estoque?: number | null
+          id?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
+      resgates: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          custo: number
+          id: string
+          recompensa_id: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          custo: number
+          id?: string
+          recompensa_id: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          custo?: number
+          id?: string
+          recompensa_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resgates_recompensa_id_fkey"
+            columns: ["recompensa_id"]
+            isOneToOne: false
+            referencedRelation: "recompensas"
             referencedColumns: ["id"]
           },
         ]
@@ -629,6 +876,22 @@ export type Database = {
     }
     Functions: {
       aluno_na_turma: { Args: { _turma: string }; Returns: boolean }
+      avaliar_comunicado: {
+        Args: { _aprovar: boolean; _id: string; _motivo?: string }
+        Returns: undefined
+      }
+      comunicado_para_mim: {
+        Args: { c: Database["public"]["Tables"]["comunicados"]["Row"] }
+        Returns: boolean
+      }
+      conceder_desafio: {
+        Args: { _aluno: string; _desafio: string }
+        Returns: undefined
+      }
+      definir_papel: {
+        Args: { _role: Database["public"]["Enums"]["app_role"]; _user: string }
+        Returns: undefined
+      }
       enviar_tentativa: {
         Args: { _respostas: Json; _simulado: string }
         Returns: Json
@@ -640,9 +903,26 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_direcao: { Args: { _u: string }; Returns: boolean }
       is_gestao: { Args: { _user_id: string }; Returns: boolean }
+      notificar_comunicado: { Args: { _id: string }; Returns: undefined }
       pode_gerir_questoes: { Args: { _u: string }; Returns: boolean }
       prof_da_turma: { Args: { _turma: string }; Returns: boolean }
+      progresso_desafio: {
+        Args: { _aluno: string; _desafio: string }
+        Returns: number
+      }
+      ranking_turma: {
+        Args: { _turma: string }
+        Returns: {
+          aluno_id: string
+          nome: string
+          pontos: number
+        }[]
+      }
+      resgatar_desafio: { Args: { _desafio: string }; Returns: number }
+      saldo_pontos: { Args: { _aluno: string }; Returns: number }
+      trocar_recompensa: { Args: { _recompensa: string }; Returns: undefined }
     }
     Enums: {
       app_role:

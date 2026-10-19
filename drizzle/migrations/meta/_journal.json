@@ -15,6 +15,13 @@
       "when": 1792196873859,
       "tag": "0001_edumind_simulados",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792369400157,
+      "tag": "0002_gestao_fase6",
+      "breakpoints": true
     }
   ]
 }
