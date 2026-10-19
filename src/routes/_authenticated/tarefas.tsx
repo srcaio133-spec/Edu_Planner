@@ -171,7 +171,7 @@ function FormTarefa({ inicial, userId, onClose, onSaved }: { inicial: Partial<Ta
             <div><Label>Disciplina</Label><select className={sel} value={f.disciplina_id ?? ""} onChange={(e) => setF({ ...f, disciplina_id: e.target.value })}><option value="">Selecione</option>{base?.disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}</select></div>
             <div><Label>Prazo</Label><Input type="datetime-local" value={f.prazo} onChange={(e) => setF({ ...f, prazo: e.target.value })} /></div>
             <div><Label>Prioridade</Label><select className={sel} value={f.prioridade} onChange={(e) => setF({ ...f, prioridade: e.target.value as Tarefa["prioridade"] })}><option value="baixa">Baixa</option><option value="media">Média</option><option value="alta">Alta</option></select></div>
-            <div><Label>Preparatório</Label><select className={sel} value={f.categoria ?? ""} onChange={(e) => setF({ ...f, categoria: (e.target.value || null) as Tarefa["categoria"] })}><option value="">Nenhum</option><option value="enem">ENEM</option><option value="ssa">SSA</option><option value="vestibular">Vestibular</option><option value="concurso">Concurso</option></select></div>
+            <div><Label>Preparatório</Label><select className={sel} value={f.categoria ?? ""} onChange={(e) => setF({ ...f, categoria: (e.target.value || null) as NonNullable<Tarefa["categoria"]> | null })}><option value="">Nenhum</option><option value="enem">ENEM</option><option value="ssa">SSA</option><option value="vestibular">Vestibular</option><option value="concurso">Concurso</option></select></div>
           </div>
           <Button type="submit" className="w-full rounded-xl" disabled={salvando}>Salvar</Button>
         </form>
