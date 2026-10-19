@@ -93,6 +93,7 @@ function Painel() {
             { t: "Tarefas para hoje", v: data?.hoje, s: "não se esqueça!", I: CalendarCheck, bg: "bg-success-soft text-success" },
             { t: "Próximas provas", v: data?.proximas, s: "nos próximos 7 dias", I: Clock, bg: "bg-warning-soft text-warning" },
             { t: "Média geral", v: fmtNota(data?.media ?? null), s: "média ponderada", I: TrendingUp, bg: "bg-violet-soft text-violet" },
+            { t: "Simulados", v: fmtNota(data?.mediaSimulados ?? null), s: `${data?.simulados ?? 0} feitos · média`, I: FileText, bg: "bg-sky-soft text-primary" },
           ];
 
   return (
