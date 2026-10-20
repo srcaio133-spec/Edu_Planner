@@ -14,7 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
 import { Route as AuthenticatedDisciplinasRouteImport } from './routes/_authenticated/disciplinas'
+import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
+import { Route as AuthenticatedMatriculasRouteImport } from './routes/_authenticated/matriculas'
 import { Route as AuthenticatedNotasRouteImport } from './routes/_authenticated/notas'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -22,6 +25,7 @@ import { Route as AuthenticatedProvasRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSimuladosRouteImport } from './routes/_authenticated/simulados'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedTurmasRouteImport } from './routes/_authenticated/turmas'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as ApiEdumindRouteImport } from './routes/api/edumind'
 
 const IndexRoute = IndexRouteImport.update({
@@ -48,12 +52,27 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({
+  id: '/desempenho',
+  path: '/desempenho',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDisciplinasRoute =
   AuthenticatedDisciplinasRouteImport.update({
     id: '/disciplinas',
     path: '/disciplinas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFrequenciaRoute = AuthenticatedFrequenciaRouteImport.update({
+  id: '/frequencia',
+  path: '/frequencia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMatriculasRoute = AuthenticatedMatriculasRouteImport.update({
+  id: '/matriculas',
+  path: '/matriculas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedNotasRoute = AuthenticatedNotasRouteImport.update({
   id: '/notas',
   path: '/notas',
@@ -89,6 +108,11 @@ const AuthenticatedTurmasRoute = AuthenticatedTurmasRouteImport.update({
   path: '/turmas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiEdumindRoute = ApiEdumindRouteImport.update({
   id: '/api/edumind',
   path: '/api/edumind',
@@ -100,7 +124,10 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/disciplinas': typeof AuthenticatedDisciplinasRoute
+  '/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/matriculas': typeof AuthenticatedMatriculasRoute
   '/notas': typeof AuthenticatedNotasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -108,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/simulados': typeof AuthenticatedSimuladosRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/turmas': typeof AuthenticatedTurmasRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/edumind': typeof ApiEdumindRoute
 }
 export interface FileRoutesByTo {
@@ -115,7 +143,10 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/disciplinas': typeof AuthenticatedDisciplinasRoute
+  '/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/matriculas': typeof AuthenticatedMatriculasRoute
   '/notas': typeof AuthenticatedNotasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -123,6 +154,7 @@ export interface FileRoutesByTo {
   '/simulados': typeof AuthenticatedSimuladosRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/turmas': typeof AuthenticatedTurmasRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/edumind': typeof ApiEdumindRoute
 }
 export interface FileRoutesById {
@@ -132,7 +164,10 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/disciplinas': typeof AuthenticatedDisciplinasRoute
+  '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
+  '/_authenticated/matriculas': typeof AuthenticatedMatriculasRoute
   '/_authenticated/notas': typeof AuthenticatedNotasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
@@ -140,6 +175,7 @@ export interface FileRoutesById {
   '/_authenticated/simulados': typeof AuthenticatedSimuladosRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/turmas': typeof AuthenticatedTurmasRoute
+  '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/edumind': typeof ApiEdumindRoute
 }
 export interface FileRouteTypes {
@@ -149,7 +185,10 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/reset-password'
     | '/agenda'
+    | '/desempenho'
     | '/disciplinas'
+    | '/frequencia'
+    | '/matriculas'
     | '/notas'
     | '/painel'
     | '/perfil'
@@ -157,6 +196,7 @@ export interface FileRouteTypes {
     | '/simulados'
     | '/tarefas'
     | '/turmas'
+    | '/usuarios'
     | '/api/edumind'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -164,7 +204,10 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/reset-password'
     | '/agenda'
+    | '/desempenho'
     | '/disciplinas'
+    | '/frequencia'
+    | '/matriculas'
     | '/notas'
     | '/painel'
     | '/perfil'
@@ -172,6 +215,7 @@ export interface FileRouteTypes {
     | '/simulados'
     | '/tarefas'
     | '/turmas'
+    | '/usuarios'
     | '/api/edumind'
   id:
     | '__root__'
@@ -180,7 +224,10 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/reset-password'
     | '/_authenticated/agenda'
+    | '/_authenticated/desempenho'
     | '/_authenticated/disciplinas'
+    | '/_authenticated/frequencia'
+    | '/_authenticated/matriculas'
     | '/_authenticated/notas'
     | '/_authenticated/painel'
     | '/_authenticated/perfil'
@@ -188,6 +235,7 @@ export interface FileRouteTypes {
     | '/_authenticated/simulados'
     | '/_authenticated/tarefas'
     | '/_authenticated/turmas'
+    | '/_authenticated/usuarios'
     | '/api/edumind'
   fileRoutesById: FileRoutesById
 }
@@ -236,11 +284,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/desempenho': {
+      id: '/_authenticated/desempenho'
+      path: '/desempenho'
+      fullPath: '/desempenho'
+      preLoaderRoute: typeof AuthenticatedDesempenhoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/disciplinas': {
       id: '/_authenticated/disciplinas'
       path: '/disciplinas'
       fullPath: '/disciplinas'
       preLoaderRoute: typeof AuthenticatedDisciplinasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/frequencia': {
+      id: '/_authenticated/frequencia'
+      path: '/frequencia'
+      fullPath: '/frequencia'
+      preLoaderRoute: typeof AuthenticatedFrequenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/matriculas': {
+      id: '/_authenticated/matriculas'
+      path: '/matriculas'
+      fullPath: '/matriculas'
+      preLoaderRoute: typeof AuthenticatedMatriculasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/notas': {
@@ -292,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTurmasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/edumind': {
       id: '/api/edumind'
       path: '/api/edumind'
@@ -304,7 +380,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
   AuthenticatedDisciplinasRoute: typeof AuthenticatedDisciplinasRoute
+  AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
+  AuthenticatedMatriculasRoute: typeof AuthenticatedMatriculasRoute
   AuthenticatedNotasRoute: typeof AuthenticatedNotasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
@@ -312,11 +391,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSimuladosRoute: typeof AuthenticatedSimuladosRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
   AuthenticatedTurmasRoute: typeof AuthenticatedTurmasRoute
+  AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
   AuthenticatedDisciplinasRoute: AuthenticatedDisciplinasRoute,
+  AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
+  AuthenticatedMatriculasRoute: AuthenticatedMatriculasRoute,
   AuthenticatedNotasRoute: AuthenticatedNotasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
@@ -324,6 +407,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSimuladosRoute: AuthenticatedSimuladosRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
   AuthenticatedTurmasRoute: AuthenticatedTurmasRoute,
+  AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
