@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { mediaPonderada } from "@/lib/perfil";
 import { fmtNota, usePerfil } from "@/lib/dados";
+import { percentualFrequencia } from "@/lib/regras";
 
 export const Route = createFileRoute("/_authenticated/notas")({
   head: () => ({
@@ -40,10 +41,16 @@ function Notas() {
     },
   });
   const geral = mediaPonderada((data ?? []).flatMap((g) => g.itens));
+  const { data: freqs } = useQuery({
+    queryKey: ["frequencia", user.id],
+    enabled: aluno,
+    queryFn: async () => (await supabase.from("frequencias").select("presente").eq("aluno_id", user.id)).data ?? [],
+  });
+  const freq = percentualFrequencia(freqs ?? []);
   return (
     <>
       <h1 className="text-3xl font-extrabold">{aluno ? "Meu boletim" : "Notas lançadas"}</h1>
-      {aluno && <p className="mt-1 text-muted-foreground">Média geral: <strong className="text-foreground">{fmtNota(geral)}</strong></p>}
+      {aluno && <p className="mt-1 text-muted-foreground">Média geral: <strong className="text-foreground">{fmtNota(geral)}</strong> · Frequência: <strong className={freq != null && freq < 75 ? "text-destructive" : "text-foreground"}>{freq == null ? "—" : `${String(freq).replace(".", ",")}%`}</strong></p>}
       <div className="mt-4 overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left"><tr>{!aluno && <th className="p-3">Aluno</th>}<th className="p-3">Disciplina</th><th className="p-3">Avaliações</th><th className="p-3 text-right">Média</th></tr></thead>
