@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedComunicadosRouteImport } from './routes/_authenticated/comunicados'
+import { Route as AuthenticatedDesafiosRouteImport } from './routes/_authenticated/desafios'
 import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
 import { Route as AuthenticatedDisciplinasRouteImport } from './routes/_authenticated/disciplinas'
 import { Route as AuthenticatedFrequenciaRouteImport } from './routes/_authenticated/frequencia'
@@ -50,6 +52,17 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   id: '/agenda',
   path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedComunicadosRoute =
+  AuthenticatedComunicadosRouteImport.update({
+    id: '/comunicados',
+    path: '/comunicados',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDesafiosRoute = AuthenticatedDesafiosRouteImport.update({
+  id: '/desafios',
+  path: '/desafios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({
@@ -124,6 +137,8 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/comunicados': typeof AuthenticatedComunicadosRoute
+  '/desafios': typeof AuthenticatedDesafiosRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/disciplinas': typeof AuthenticatedDisciplinasRoute
   '/frequencia': typeof AuthenticatedFrequenciaRoute
@@ -143,6 +158,8 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/comunicados': typeof AuthenticatedComunicadosRoute
+  '/desafios': typeof AuthenticatedDesafiosRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/disciplinas': typeof AuthenticatedDisciplinasRoute
   '/frequencia': typeof AuthenticatedFrequenciaRoute
@@ -164,6 +181,8 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/comunicados': typeof AuthenticatedComunicadosRoute
+  '/_authenticated/desafios': typeof AuthenticatedDesafiosRoute
   '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/disciplinas': typeof AuthenticatedDisciplinasRoute
   '/_authenticated/frequencia': typeof AuthenticatedFrequenciaRoute
@@ -185,6 +204,8 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/reset-password'
     | '/agenda'
+    | '/comunicados'
+    | '/desafios'
     | '/desempenho'
     | '/disciplinas'
     | '/frequencia'
@@ -204,6 +225,8 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/reset-password'
     | '/agenda'
+    | '/comunicados'
+    | '/desafios'
     | '/desempenho'
     | '/disciplinas'
     | '/frequencia'
@@ -224,6 +247,8 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/reset-password'
     | '/_authenticated/agenda'
+    | '/_authenticated/comunicados'
+    | '/_authenticated/desafios'
     | '/_authenticated/desempenho'
     | '/_authenticated/disciplinas'
     | '/_authenticated/frequencia'
@@ -282,6 +307,20 @@ declare module '@tanstack/react-router' {
       path: '/agenda'
       fullPath: '/agenda'
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comunicados': {
+      id: '/_authenticated/comunicados'
+      path: '/comunicados'
+      fullPath: '/comunicados'
+      preLoaderRoute: typeof AuthenticatedComunicadosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/desafios': {
+      id: '/_authenticated/desafios'
+      path: '/desafios'
+      fullPath: '/desafios'
+      preLoaderRoute: typeof AuthenticatedDesafiosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/desempenho': {
@@ -380,6 +419,8 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedComunicadosRoute: typeof AuthenticatedComunicadosRoute
+  AuthenticatedDesafiosRoute: typeof AuthenticatedDesafiosRoute
   AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
   AuthenticatedDisciplinasRoute: typeof AuthenticatedDisciplinasRoute
   AuthenticatedFrequenciaRoute: typeof AuthenticatedFrequenciaRoute
@@ -396,6 +437,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedComunicadosRoute: AuthenticatedComunicadosRoute,
+  AuthenticatedDesafiosRoute: AuthenticatedDesafiosRoute,
   AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
   AuthenticatedDisciplinasRoute: AuthenticatedDisciplinasRoute,
   AuthenticatedFrequenciaRoute: AuthenticatedFrequenciaRoute,
