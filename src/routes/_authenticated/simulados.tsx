@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { usePerfil, fmtData, fmtNota } from "@/lib/dados";
+import { usePerfil, fmtData, fmtNota, useTurmasDisciplinas } from "@/lib/dados";
 import { CATEGORIAS, LETRAS, type Categoria } from "@/lib/simulados";
 
 export const Route = createFileRoute("/_authenticated/simulados")({
@@ -41,13 +41,16 @@ function Simulados() {
     queryKey: ["simulados"],
     queryFn: async () => {
       const [s, t] = await Promise.all([
-        supabase.from("simulados").select("id,titulo,categoria,duracao_min,simulado_questoes(count)").order("created_at"),
+        supabase.from("simulados").select("id,titulo,categoria,duracao_min,simulado_questoes(questoes(disciplina_id))").order("created_at"),
         supabase.from("tentativas").select("id,simulado_id,nota,acertos,total,created_at").eq("aluno_id", user.id).order("created_at", { ascending: false }),
       ]);
       return { simulados: s.data ?? [], tentativas: t.data ?? [] };
     },
   });
-  const lista = (data?.simulados ?? []).filter((s) => cat === "todos" || s.categoria === cat);
+  const { data: base } = useTurmasDisciplinas();
+  const [disc, setDisc] = useState("");
+  const lista = (data?.simulados ?? []).filter((s) => (cat === "todos" || s.categoria === cat)
+    && (!disc || s.simulado_questoes.some((x) => x.questoes?.disciplina_id === disc)));
 
   if (fazendo) return <Resolver sim={fazendo} onSair={() => setFazendo(null)} />;
 
@@ -61,6 +64,10 @@ function Simulados() {
         {gere && <Button className="rounded-xl" onClick={() => setNova(true)}><Plus /> Nova questão</Button>}
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <select aria-label="Disciplina" className="h-9 rounded-full border border-input bg-background px-3 text-sm" value={disc} onChange={(e) => setDisc(e.target.value)}>
+          <option value="">Todas as disciplinas</option>
+          {base?.disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
+        </select>
         {[{ id: "todos", nome: "Todos" } as const, ...CATEGORIAS].map((c) => (
           <Button key={c.id} size="sm" variant={cat === c.id ? "default" : "outline"} className="rounded-full" onClick={() => setCat(c.id)}>{c.nome}</Button>
         ))}
@@ -70,7 +77,7 @@ function Simulados() {
         {lista.map((s) => {
           const ts = (data?.tentativas ?? []).filter((t) => t.simulado_id === s.id);
           const melhor = ts.length ? Math.max(...ts.map((t) => Number(t.nota))) : null;
-          const n = (s.simulado_questoes as unknown as { count: number }[])[0]?.count ?? 0;
+          const n = s.simulado_questoes.length;
           return (
             <div key={s.id} className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card">
               <span className="w-fit rounded-full bg-sky-soft px-2 py-0.5 text-xs font-semibold text-primary">{CATEGORIAS.find((c) => c.id === s.categoria)?.nome}</span>
