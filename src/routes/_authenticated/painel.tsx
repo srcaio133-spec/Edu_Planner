@@ -47,6 +47,7 @@ async function carregar(userId: string) {
     concluidasTurma: (entregas.data ?? []).filter((e) => e.status === "concluida").length,
     totalTurmas: turmas.count ?? 0,
     totalAlunos: new Set((matriculas.data ?? []).map((m) => m.aluno_id)).size,
+    totalMatriculas: (matriculas.data ?? []).length,
     totalProfessores: new Set((roles.data ?? []).map((r) => r.user_id)).size,
     totalProvas: (provas.data ?? []).length,
     simulados: notasSim.length,
@@ -80,6 +81,7 @@ function Painel() {
           { t: "Alunos", v: data?.totalAlunos, s: "matriculados", I: Users, bg: "bg-success-soft text-success" },
           { t: "Professores", v: data?.totalProfessores, s: "ativos", I: BookOpen, bg: "bg-warning-soft text-warning" },
           { t: "Atividades", v: (data?.tarefas.length ?? 0) + (data?.totalProvas ?? 0), s: "tarefas e provas", I: FileText, bg: "bg-violet-soft text-violet" },
+          { t: "Matrículas ativas", v: data?.totalMatriculas, s: "em todas as turmas", I: ClipboardList, bg: "bg-sky-soft text-primary" },
         ]
       : perfil === "professor"
         ? [
