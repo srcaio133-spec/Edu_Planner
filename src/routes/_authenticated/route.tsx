@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { usePerfil } from "@/lib/dados";
 import { ROLE_LABEL, rolePrincipal } from "@/lib/perfil";
 import { EduMindWidget } from "@/components/EduMindWidget";
+import { NotificacoesSino } from "@/components/NotificacoesSino";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -49,6 +50,7 @@ function Layout() {
             <div className="flex-1 truncate text-sm text-muted-foreground">
               {data ? `${data.nome || user.email} · ${ROLE_LABEL[rolePrincipal(data.roles)]}` : ""}
             </div>
+            <NotificacoesSino userId={user.id} />
             <ThemeButton />
             <Button variant="outline" className="rounded-xl" onClick={sair}><LogOut /> <span className="hidden sm:inline">Sair</span></Button>
           </header>

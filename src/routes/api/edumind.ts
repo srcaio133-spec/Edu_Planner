@@ -35,22 +35,27 @@ export const Route = createFileRoute("/api/edumind")({
 
         // Contexto real do usuário (RLS aplica)
         const agora = new Date().toISOString();
-        const [roles, prof, tarefas, provas, notas, tent] = await Promise.all([
+        const [roles, prof, tarefas, provas, notas, tent, discs, freq] = await Promise.all([
           sb.from("user_roles").select("role").eq("user_id", uid),
           sb.from("profiles").select("nome").eq("id", uid).maybeSingle(),
           sb.from("tarefas").select("titulo,prazo,categoria,disciplinas(nome)").gte("prazo", agora).order("prazo").limit(10),
           sb.from("provas").select("titulo,data,conteudo,disciplinas(nome)").gte("data", agora).order("data").limit(10),
           sb.from("notas").select("valor,provas(titulo,disciplinas(nome))").eq("aluno_id", uid).limit(30),
           sb.from("tentativas").select("nota,acertos,total,simulados(titulo)").eq("aluno_id", uid).order("created_at", { ascending: false }).limit(5),
+          sb.from("turma_disciplinas").select("professor_nome,disciplinas(nome),turmas(nome)").limit(30),
+          sb.from("frequencias").select("presente").eq("aluno_id", uid),
         ]);
         const rs = (roles.data ?? []).map((r) => r.role);
         const perfil = rs.some((r) => ["admin", "diretor", "vice_diretor", "secretaria", "coordenacao"].includes(r)) ? "gestao" : rs.includes("professor") ? "professor" : "aluno";
         const contexto = JSON.stringify({
           nome: prof.data?.nome, data_hoje: agora.slice(0, 10),
+          disciplinas_da_turma: (discs.data ?? []).map((d) => ({ disciplina: d.disciplinas?.nome, professor: d.professor_nome, turma: d.turmas?.nome })),
+          frequencia_percentual: freq.data?.length ? Math.round((freq.data.filter((f) => f.presente).length * 100) / freq.data.length) : null,
           proximas_tarefas: tarefas.data, proximas_provas: provas.data, minhas_notas: notas.data, simulados_recentes: tent.data,
         });
         const instructions = `${PAPEL[perfil]}
 Responda sempre em português do Brasil, com Markdown claro. Seja acolhedor e preciso. Nunca revele dados de outros alunos. Recuse conteúdo inadequado.
+Priorize as disciplinas da turma e os conteúdos das próximas provas: é o que o aluno realmente estuda. Questões e exemplos devem ser dessas disciplinas.
 Dados reais do usuário no EduPlanner (use quando relevante): ${contexto}`;
 
         const apiKey = process.env["LOVABLE_API_KEY"];
