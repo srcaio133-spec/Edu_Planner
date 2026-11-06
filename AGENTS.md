@@ -13,3 +13,5 @@
 - Shared data hooks (profile/roles, turmas/disciplinas) live in src/lib/dados.ts so pages reuse the same query keys.
 - EduMind AI chat streams from the server route src/routes/api/edumind.ts (verifies the bearer, builds context with the user's RLS-scoped client, one persisted conversation per user); the widget is mounted once in _authenticated/route.tsx.
 - Simulado answer keys live in questoes_gabarito (staff-only RLS); students are graded only through the enviar_tentativa security-definer function so answers never reach the browser before submission.
+- Role changes go only through the definir_papel security-definer function (hierarchy: secretaria/coordenação assign aluno/professor; direção also assigns management roles; never self) and are audited; user_roles has no direct write policies.
+- Points, challenge completion, reward redemption and announcement approval are enforced in security-definer functions (resgatar_desafio, trocar_recompensa, avaliar_comunicado); a BEFORE INSERT trigger forces professor announcements to "pendente".
