@@ -4,6 +4,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import type { Database } from "@/integrations/supabase/types";
 import { createRunIdFetch } from "@/lib/edumind/run-id.server";
+import { PROMPT_TUTOR } from "@/lib/edumind/prompts";
+import { contemPalavrao } from "@/lib/edumind/formatacao";
 
 const PAPEL: Record<string, string> = {
   aluno: "Você é o EduMind, tutor educacional de um aluno do ensino médio brasileiro. Use o método socrático: explique passo a passo, faça perguntas que guiem o raciocínio e não entregue respostas de tarefas avaliativas sem explicar. Ajude com planos de estudo, resumos, flashcards e questões no estilo ENEM, SSA (UPE), vestibulares e concursos.",
@@ -28,6 +30,10 @@ export const Route = createFileRoute("/api/edumind")({
 
         const { messages } = (await request.json()) as { messages: UIMessage[] };
         const last = messages[messages.length - 1];
+        const textoUser = last?.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ") ?? "";
+        if (last?.role === "user" && contemPalavrao(textoUser)) {
+          return Response.json({ error: "Vamos manter a conversa respeitosa 🙂 Reescreva sua pergunta sem palavrões, por favor." }, { status: 422 });
+        }
         if (last?.role === "user") {
           const { error } = await sb.from("edumind_mensagens").insert({ user_id: uid, role: "user", parts: last.parts as never });
           if (error) console.error("edumind save user", error);
@@ -35,15 +41,17 @@ export const Route = createFileRoute("/api/edumind")({
 
         // Contexto real do usuário (RLS aplica)
         const agora = new Date().toISOString();
-        const [roles, prof, tarefas, provas, notas, tent, discs, freq] = await Promise.all([
+        const [roles, prof, tarefas, provas, notas, tent, discs, freq, desemp, conts] = await Promise.all([
           sb.from("user_roles").select("role").eq("user_id", uid),
           sb.from("profiles").select("nome").eq("id", uid).maybeSingle(),
           sb.from("tarefas").select("titulo,prazo,categoria,disciplinas(nome)").gte("prazo", agora).order("prazo").limit(10),
-          sb.from("provas").select("titulo,data,conteudo,disciplinas(nome)").gte("data", agora).order("data").limit(10),
+          sb.from("provas").select("titulo,data,conteudo,disciplinas(nome),conteudos(titulo)").gte("data", agora).order("data").limit(10),
           sb.from("notas").select("valor,provas(titulo,disciplinas(nome))").eq("aluno_id", uid).limit(30),
           sb.from("tentativas").select("nota,acertos,total,simulados(titulo)").eq("aluno_id", uid).order("created_at", { ascending: false }).limit(5),
           sb.from("turma_disciplinas").select("professor_nome,disciplinas(nome),turmas(nome)").limit(30),
           sb.from("frequencias").select("presente").eq("aluno_id", uid),
+          sb.rpc("desempenho_por_conteudo", { _aluno: uid }),
+          sb.from("conteudos").select("titulo,disciplinas(nome)").order("ordem"),
         ]);
         const rs = (roles.data ?? []).map((r) => r.role);
         const perfil = rs.some((r) => ["admin", "diretor", "vice_diretor", "secretaria", "coordenacao"].includes(r)) ? "gestao" : rs.includes("professor") ? "professor" : "aluno";
@@ -51,11 +59,16 @@ export const Route = createFileRoute("/api/edumind")({
           nome: prof.data?.nome, data_hoje: agora.slice(0, 10),
           disciplinas_da_turma: (discs.data ?? []).map((d) => ({ disciplina: d.disciplinas?.nome, professor: d.professor_nome, turma: d.turmas?.nome })),
           frequencia_percentual: freq.data?.length ? Math.round((freq.data.filter((f) => f.presente).length * 100) / freq.data.length) : null,
+          conteudos_por_disciplina: (conts.data ?? []).reduce<Record<string, string[]>>((acc, c) => { const d = c.disciplinas?.nome ?? "—"; (acc[d] ??= []).push(c.titulo); return acc; }, {}),
+          desempenho_simulados_por_conteudo: desemp.data,
           proximas_tarefas: tarefas.data, proximas_provas: provas.data, minhas_notas: notas.data, simulados_recentes: tent.data,
         });
-        const instructions = `${PAPEL[perfil]}
-Responda sempre em português do Brasil, com Markdown claro. Seja acolhedor e preciso. Nunca revele dados de outros alunos. Recuse conteúdo inadequado.
-Priorize as disciplinas da turma e os conteúdos das próximas provas: é o que o aluno realmente estuda. Questões e exemplos devem ser dessas disciplinas.
+        const instructions = `${PROMPT_TUTOR}
+
+PAPEL NESTA CONVERSA
+${PAPEL[perfil]}
+Nunca revele dados de outros alunos.
+Priorize as disciplinas da turma e os conteúdos das próximas provas: é o que o aluno realmente estuda. Questões e exemplos devem ser dessas disciplinas e conteúdos. Use o desempenho por conteúdo para sugerir o que revisar (onde há mais erros).
 Dados reais do usuário no EduPlanner (use quando relevante): ${contexto}`;
 
         const apiKey = process.env["LOVABLE_API_KEY"];

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Plus, Play, Timer, CheckCircle2, XCircle, Trophy } from "lucide-react";
+import { Brain, Plus, Play, Timer, CheckCircle2, XCircle, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { usePerfil, fmtData, fmtNota, useTurmasDisciplinas } from "@/lib/dados";
 import { CATEGORIAS, LETRAS, type Categoria } from "@/lib/simulados";
+import { FiguraSvg } from "@/components/FiguraSvg";
+import { GerarQuestoesIA, RevisarQuestoes } from "@/components/QuestoesIA";
 
 export const Route = createFileRoute("/_authenticated/simulados")({
   head: () => ({
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/simulados")({
   component: Simulados,
 });
 
-type Questao = { id: string; area: string; enunciado: string; alternativas: string[] };
+type Questao = { id: string; area: string; enunciado: string; alternativas: string[]; figura: unknown; conteudos: { titulo: string } | null };
 type Resultado = { acertos: number; total: number; nota: number; gabarito: Record<string, { correta: number; explicacao: string }> };
 
 function Simulados() {
@@ -41,7 +43,7 @@ function Simulados() {
     queryKey: ["simulados"],
     queryFn: async () => {
       const [s, t] = await Promise.all([
-        supabase.from("simulados").select("id,titulo,categoria,duracao_min,simulado_questoes(questoes(disciplina_id))").order("created_at"),
+        supabase.from("simulados").select("id,titulo,categoria,duracao_min,simulado_questoes(questoes(disciplina_id,conteudo_id))").order("created_at"),
         supabase.from("tentativas").select("id,simulado_id,nota,acertos,total,created_at").eq("aluno_id", user.id).order("created_at", { ascending: false }),
       ]);
       return { simulados: s.data ?? [], tentativas: t.data ?? [] };
@@ -49,8 +51,11 @@ function Simulados() {
   });
   const { data: base } = useTurmasDisciplinas();
   const [disc, setDisc] = useState("");
+  const [cont, setCont] = useState("");
+  const { data: conteudos } = useQuery({ queryKey: ["conteudos"], queryFn: async () => (await supabase.from("conteudos").select("id,titulo,disciplina_id").order("ordem")).data ?? [] });
   const lista = (data?.simulados ?? []).filter((s) => (cat === "todos" || s.categoria === cat)
-    && (!disc || s.simulado_questoes.some((x) => x.questoes?.disciplina_id === disc)));
+    && (!disc || s.simulado_questoes.some((x) => x.questoes?.disciplina_id === disc))
+    && (!cont || s.simulado_questoes.some((x) => x.questoes?.conteudo_id === cont)));
 
   if (fazendo) return <Resolver sim={fazendo} onSair={() => setFazendo(null)} />;
 
@@ -64,9 +69,13 @@ function Simulados() {
         {gere && <Button className="rounded-xl" onClick={() => setNova(true)}><Plus /> Nova questão</Button>}
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        <select aria-label="Disciplina" className="h-9 rounded-full border border-input bg-background px-3 text-sm" value={disc} onChange={(e) => setDisc(e.target.value)}>
+        <select aria-label="Disciplina" className="h-9 rounded-full border border-input bg-background px-3 text-sm" value={disc} onChange={(e) => { setDisc(e.target.value); setCont(""); }}>
           <option value="">Todas as disciplinas</option>
           {base?.disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
+        </select>
+        <select aria-label="Conteúdo" className="h-9 rounded-full border border-input bg-background px-3 text-sm" value={cont} onChange={(e) => setCont(e.target.value)}>
+          <option value="">Todos os conteúdos</option>
+          {conteudos?.filter((c) => !disc || c.disciplina_id === disc).map((c) => <option key={c.id} value={c.id}>{c.titulo}</option>)}
         </select>
         {[{ id: "todos", nome: "Todos" } as const, ...CATEGORIAS].map((c) => (
           <Button key={c.id} size="sm" variant={cat === c.id ? "default" : "outline"} className="rounded-full" onClick={() => setCat(c.id)}>{c.nome}</Button>
@@ -114,7 +123,7 @@ function Resolver({ sim, onSair }: { sim: { id: string; titulo: string; duracao_
   const { data: qs } = useQuery({
     queryKey: ["simulado", sim.id],
     queryFn: async () => {
-      const { data } = await supabase.from("simulado_questoes").select("ordem,questoes(id,area,enunciado,alternativas)").eq("simulado_id", sim.id).order("ordem");
+      const { data } = await supabase.from("simulado_questoes").select("ordem,questoes(id,area,enunciado,alternativas,figura,conteudos(titulo))").eq("simulado_id", sim.id).order("ordem");
       return (data ?? []).map((x) => x.questoes as unknown as Questao).filter(Boolean);
     },
   });
@@ -151,8 +160,9 @@ function Resolver({ sim, onSair }: { sim: { id: string; titulo: string; duracao_
           const g = res?.gabarito[q.id];
           return (
             <div key={q.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-              <div className="text-xs font-semibold text-muted-foreground">Questão {i + 1} · {q.area}</div>
+              <div className="text-xs font-semibold text-muted-foreground">Questão {i + 1} · {q.area}{q.conteudos ? ` · ${q.conteudos.titulo}` : ""}</div>
               <p className="mt-1 font-medium">{q.enunciado}</p>
+              {q.figura ? <FiguraSvg spec={q.figura} className="max-w-sm" /> : null}
               <div className="mt-3 space-y-2">
                 {q.alternativas.map((a, j) => {
                   const marcada = resp[q.id] === j;
@@ -170,6 +180,12 @@ function Resolver({ sim, onSair }: { sim: { id: string; titulo: string; duracao_
                   {resp[q.id] === g.correta ? <CheckCircle2 className="size-5 shrink-0 text-success" /> : <XCircle className="size-5 shrink-0 text-destructive" />}
                   <span><b>Gabarito {LETRAS[g.correta]}.</b> {g.explicacao}</span>
                 </p>
+              )}
+              {g && (
+                <Button size="sm" variant="outline" className="mt-2 rounded-xl" onClick={() => window.dispatchEvent(new CustomEvent("edumind:perguntar", { detail:
+                  `Me explique passo a passo esta questão (${q.area}${q.conteudos ? `, ${q.conteudos.titulo}` : ""}):\n${q.enunciado}\nAlternativas: ${q.alternativas.map((a, k) => `${LETRAS[k]}) ${a}`).join("; ")}\nGabarito: ${LETRAS[g.correta]}. Eu marquei: ${resp[q.id] != null ? LETRAS[resp[q.id]!] : "nenhuma"}.${q.figura ? " A questão tem uma figura: " + JSON.stringify(q.figura) : ""}` }))}>
+                  <Brain /> Explicar com EduMind
+                </Button>
               )}
             </div>
           );

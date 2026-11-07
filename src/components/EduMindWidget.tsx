@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import ReactMarkdown from "react-markdown";
+import { MensagemEduMind } from "@/components/MensagemEduMind";
 import { Brain, Send, Square, X, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,12 @@ const SUGESTOES: Record<Perfil, string[]> = {
 
 export function EduMindWidget({ userId, perfil }: { userId: string; perfil: Perfil }) {
   const [aberto, setAberto] = useState(false);
+  const [pendente, setPendente] = useState<string | null>(null);
+  useEffect(() => {
+    const h = (e: Event) => { setPendente((e as CustomEvent<string>).detail); setAberto(true); };
+    window.addEventListener("edumind:perguntar", h);
+    return () => window.removeEventListener("edumind:perguntar", h);
+  }, []);
   const [inicial, setInicial] = useState<UIMessage[] | null>(null);
 
   useEffect(() => {
@@ -33,7 +39,7 @@ export function EduMindWidget({ userId, perfil }: { userId: string; perfil: Perf
       )}
       {aberto && (
         <div className="fixed bottom-0 right-0 z-50 flex h-[85vh] w-full flex-col overflow-hidden border border-border bg-card shadow-card sm:bottom-5 sm:right-5 sm:h-[600px] sm:w-[400px] sm:rounded-2xl">
-          {inicial ? <Chat key="chat" inicial={inicial} perfil={perfil} userId={userId} onClose={() => setAberto(false)} onReset={() => setInicial([])} />
+          {inicial ? <Chat key="chat" pendente={pendente} onConsumido={() => setPendente(null)} inicial={inicial} perfil={perfil} userId={userId} onClose={() => setAberto(false)} onReset={() => setInicial([])} />
             : <div className="grid flex-1 place-items-center text-sm text-muted-foreground">Carregando…</div>}
         </div>
       )}
@@ -41,7 +47,7 @@ export function EduMindWidget({ userId, perfil }: { userId: string; perfil: Perf
   );
 }
 
-function Chat({ inicial, perfil, userId, onClose, onReset }: { inicial: UIMessage[]; perfil: Perfil; userId: string; onClose: () => void; onReset: () => void }) {
+function Chat({ inicial, perfil, userId, onClose, onReset, pendente, onConsumido }: { pendente: string | null; onConsumido: () => void; inicial: UIMessage[]; perfil: Perfil; userId: string; onClose: () => void; onReset: () => void }) {
   const transport = useMemo(() => new DefaultChatTransport({
     api: "/api/edumind",
     headers: async (): Promise<Record<string, string>> => {
@@ -58,6 +64,9 @@ function Chat({ inicial, perfil, userId, onClose, onReset }: { inicial: UIMessag
   useEffect(() => { fim.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, status]);
   useEffect(() => { if (!ocupado) ta.current?.focus(); }, [ocupado]);
 
+  useEffect(() => {
+    if (pendente && !ocupado) { sendMessage({ text: pendente }); onConsumido(); }
+  }, [pendente, ocupado, sendMessage, onConsumido]);
   function enviar(t: string) {
     if (!t.trim() || ocupado) return;
     sendMessage({ text: t.trim() });
@@ -88,11 +97,11 @@ function Chat({ inicial, perfil, userId, onClose, onReset }: { inicial: UIMessag
         )}
         {messages.map((m) => (
           <div key={m.id} className={m.role === "user" ? "ml-8 rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-sm text-primary-foreground" : "prose prose-sm max-w-none text-sm text-foreground dark:prose-invert"}>
-            {m.parts.map((p, i) => p.type === "text" ? (m.role === "user" ? <span key={i} className="whitespace-pre-wrap">{p.text}</span> : <ReactMarkdown key={i}>{p.text}</ReactMarkdown>) : null)}
+            {m.parts.map((p, i) => p.type === "text" ? (m.role === "user" ? <span key={i} className="whitespace-pre-wrap">{p.text}</span> : <MensagemEduMind key={i} texto={p.text} />) : null)}
           </div>
         ))}
         {status === "submitted" && <div className="text-sm text-muted-foreground animate-pulse">EduMind está pensando…</div>}
-        {error && <div className="rounded-xl bg-danger-soft p-2 text-sm text-destructive">{error.message || "Não foi possível responder."}</div>}
+        {error && <div className="rounded-xl bg-danger-soft p-2 text-sm text-destructive">{(() => { try { return JSON.parse(error.message).error as string; } catch { return error.message || "Não foi possível responder."; } })()}</div>}
         <div ref={fim} />
       </div>
       <form onSubmit={(e) => { e.preventDefault(); enviar(txt); }} className="flex items-end gap-2 border-t border-border p-3">

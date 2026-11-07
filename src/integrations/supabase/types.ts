@@ -97,6 +97,38 @@ export type Database = {
           },
         ]
       }
+      conteudos: {
+        Row: {
+          created_at: string
+          disciplina_id: string
+          id: string
+          ordem: number
+          titulo: string
+        }
+        Insert: {
+          created_at?: string
+          disciplina_id: string
+          id?: string
+          ordem?: number
+          titulo: string
+        }
+        Update: {
+          created_at?: string
+          disciplina_id?: string
+          id?: string
+          ordem?: number
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conteudos_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       desafio_conclusoes: {
         Row: {
           aluno_id: string
@@ -460,6 +492,7 @@ export type Database = {
       provas: {
         Row: {
           conteudo: string | null
+          conteudo_id: string | null
           created_at: string
           data: string
           disciplina_id: string
@@ -470,6 +503,7 @@ export type Database = {
         }
         Insert: {
           conteudo?: string | null
+          conteudo_id?: string | null
           created_at?: string
           data: string
           disciplina_id: string
@@ -480,6 +514,7 @@ export type Database = {
         }
         Update: {
           conteudo?: string | null
+          conteudo_id?: string | null
           created_at?: string
           data?: string
           disciplina_id?: string
@@ -489,6 +524,13 @@ export type Database = {
           turma_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "provas_conteudo_id_fkey"
+            columns: ["conteudo_id"]
+            isOneToOne: false
+            referencedRelation: "conteudos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "provas_disciplina_id_fkey"
             columns: ["disciplina_id"]
@@ -511,32 +553,48 @@ export type Database = {
           area: string
           autor_id: string | null
           categoria: Database["public"]["Enums"]["categoria_exame"]
+          conteudo_id: string | null
           created_at: string
           disciplina_id: string | null
           enunciado: string
+          figura: Json | null
           id: string
+          status: string
         }
         Insert: {
           alternativas: Json
           area: string
           autor_id?: string | null
           categoria: Database["public"]["Enums"]["categoria_exame"]
+          conteudo_id?: string | null
           created_at?: string
           disciplina_id?: string | null
           enunciado: string
+          figura?: Json | null
           id?: string
+          status?: string
         }
         Update: {
           alternativas?: Json
           area?: string
           autor_id?: string | null
           categoria?: Database["public"]["Enums"]["categoria_exame"]
+          conteudo_id?: string | null
           created_at?: string
           disciplina_id?: string | null
           enunciado?: string
+          figura?: Json | null
           id?: string
+          status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "questoes_conteudo_id_fkey"
+            columns: ["conteudo_id"]
+            isOneToOne: false
+            referencedRelation: "conteudos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "questoes_disciplina_id_fkey"
             columns: ["disciplina_id"]
@@ -697,6 +755,7 @@ export type Database = {
       tarefas: {
         Row: {
           categoria: Database["public"]["Enums"]["categoria_exame"] | null
+          conteudo_id: string | null
           created_at: string
           descricao: string | null
           disciplina_id: string
@@ -710,6 +769,7 @@ export type Database = {
         }
         Insert: {
           categoria?: Database["public"]["Enums"]["categoria_exame"] | null
+          conteudo_id?: string | null
           created_at?: string
           descricao?: string | null
           disciplina_id: string
@@ -723,6 +783,7 @@ export type Database = {
         }
         Update: {
           categoria?: Database["public"]["Enums"]["categoria_exame"] | null
+          conteudo_id?: string | null
           created_at?: string
           descricao?: string | null
           disciplina_id?: string
@@ -735,6 +796,13 @@ export type Database = {
           turma_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tarefas_conteudo_id_fkey"
+            columns: ["conteudo_id"]
+            isOneToOne: false
+            referencedRelation: "conteudos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tarefas_disciplina_id_fkey"
             columns: ["disciplina_id"]
@@ -891,6 +959,15 @@ export type Database = {
       definir_papel: {
         Args: { _role: Database["public"]["Enums"]["app_role"]; _user: string }
         Returns: undefined
+      }
+      desempenho_por_conteudo: {
+        Args: { _aluno: string }
+        Returns: {
+          acertos: number
+          conteudo: string
+          disciplina: string
+          total: number
+        }[]
       }
       enviar_tentativa: {
         Args: { _respostas: Json; _simulado: string }
