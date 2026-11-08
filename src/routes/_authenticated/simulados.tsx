@@ -39,6 +39,7 @@ function Simulados() {
   const [cat, setCat] = useState<Categoria | "todos">("todos");
   const [fazendo, setFazendo] = useState<{ id: string; titulo: string; duracao_min: number } | null>(null);
   const [nova, setNova] = useState(false);
+  const [gerar, setGerar] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["simulados"],
     queryFn: async () => {
@@ -66,7 +67,7 @@ function Simulados() {
           <h1 className="text-3xl font-extrabold">Simulados</h1>
           <p className="text-muted-foreground">ENEM, SSA, vestibulares e concursos.</p>
         </div>
-        {gere && <Button className="rounded-xl" onClick={() => setNova(true)}><Plus /> Nova questão</Button>}
+        {gere && <div className="flex gap-2"><Button variant="outline" className="rounded-xl" onClick={() => setGerar(true)}><Brain /> Gerar com IA</Button><Button className="rounded-xl" onClick={() => setNova(true)}><Plus /> Nova questão</Button></div>}
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <select aria-label="Disciplina" className="h-9 rounded-full border border-input bg-background px-3 text-sm" value={disc} onChange={(e) => { setDisc(e.target.value); setCont(""); }}>
@@ -110,6 +111,8 @@ function Simulados() {
           ))}
         </section>
       )}
+      {gere && <RevisarQuestoes simulados={data?.simulados ?? []} />}
+      {gerar && <GerarQuestoesIA onClose={() => setGerar(false)} />}
       {nova && <NovaQuestao simulados={data?.simulados ?? []} onClose={() => setNova(false)} />}
     </>
   );

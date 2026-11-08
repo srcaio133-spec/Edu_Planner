@@ -26,7 +26,7 @@ export function MensagemEduMind({ texto }: { texto: string }) {
   return (
     <>
       {separarFiguras(texto).map((p, i) =>
-        p.tipo === "figura" ? <FiguraSvg key={i} spec={p.spec} /> : <ReactMarkdown key={i}>{normalizarTexto(p.texto)}</ReactMarkdown>,
+        p.tipo === "figura" ? <FiguraSvg key={i} spec={p.spec} /> : <ReactMarkdown key={i}>{normalizarTexto(p.texto).replace(/([^\n])\n(?!\n)/g, "$1  \n")}</ReactMarkdown>,
       )}
     </>
   );

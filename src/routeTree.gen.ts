@@ -29,6 +29,7 @@ import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedTurmasRouteImport } from './routes/_authenticated/turmas'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as ApiEdumindRouteImport } from './routes/api/edumind'
+import { Route as ApiQuestoesIaRouteImport } from './routes/api/questoes-ia'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -131,6 +132,11 @@ const ApiEdumindRoute = ApiEdumindRouteImport.update({
   path: '/api/edumind',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiQuestoesIaRoute = ApiQuestoesIaRouteImport.update({
+  id: '/api/questoes-ia',
+  path: '/api/questoes-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/turmas': typeof AuthenticatedTurmasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/edumind': typeof ApiEdumindRoute
+  '/api/questoes-ia': typeof ApiQuestoesIaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/turmas': typeof AuthenticatedTurmasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/edumind': typeof ApiEdumindRoute
+  '/api/questoes-ia': typeof ApiQuestoesIaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/turmas': typeof AuthenticatedTurmasRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/api/edumind': typeof ApiEdumindRoute
+  '/api/questoes-ia': typeof ApiQuestoesIaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/usuarios'
     | '/api/edumind'
+    | '/api/questoes-ia'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/usuarios'
     | '/api/edumind'
+    | '/api/questoes-ia'
   id:
     | '__root__'
     | '/'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/_authenticated/turmas'
     | '/_authenticated/usuarios'
     | '/api/edumind'
+    | '/api/questoes-ia'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,6 +282,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiEdumindRoute: typeof ApiEdumindRoute
+  ApiQuestoesIaRoute: typeof ApiQuestoesIaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -414,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEdumindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/questoes-ia': {
+      id: '/api/questoes-ia'
+      path: '/api/questoes-ia'
+      fullPath: '/api/questoes-ia'
+      preLoaderRoute: typeof ApiQuestoesIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -462,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiEdumindRoute: ApiEdumindRoute,
+  ApiQuestoesIaRoute: ApiQuestoesIaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

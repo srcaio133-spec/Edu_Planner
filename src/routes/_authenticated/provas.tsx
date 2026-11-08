@@ -32,7 +32,7 @@ function Provas() {
   const [lancar, setLancar] = useState<{ id: string; turma_id: string; titulo: string } | null>(null);
   const { data } = useQuery({
     queryKey: ["provas"],
-    queryFn: async () => (await supabase.from("provas").select("*,disciplinas(nome),turmas(nome)").order("data")).data ?? [],
+    queryFn: async () => (await supabase.from("provas").select("*,disciplinas(nome),turmas(nome),conteudos(titulo)").order("data")).data ?? [],
   });
   const recarregar = () => qc.invalidateQueries({ queryKey: ["provas"] });
   async function excluir(id: string) {
@@ -53,7 +53,7 @@ function Provas() {
           <div key={pr.id} className={`flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card ${new Date(pr.data).getTime() < agora ? "opacity-70" : ""}`}>
             <div className="min-w-0 flex-1">
               <div className="font-semibold">{pr.titulo}</div>
-              <div className="text-sm text-muted-foreground">{pr.disciplinas?.nome} · {pr.turmas?.nome} · {fmtData(pr.data)} · peso {String(pr.peso).replace(".", ",")}</div>
+              <div className="text-sm text-muted-foreground">{pr.disciplinas?.nome}{pr.conteudos ? ` (${pr.conteudos.titulo})` : ""} · {pr.turmas?.nome} · {fmtData(pr.data)} · peso {String(pr.peso).replace(".", ",")}</div>
               {pr.conteudo && <p className="mt-1 text-sm">Conteúdo: {pr.conteudo}</p>}
             </div>
             {gere && (
@@ -74,11 +74,12 @@ function Provas() {
 
 function NovaProva({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const { data: base } = useTurmasDisciplinas();
-  const [f, setF] = useState({ titulo: "", conteudo: "", turma_id: "", disciplina_id: "", data: "", peso: "1" });
+  const [f, setF] = useState({ titulo: "", conteudo: "", turma_id: "", disciplina_id: "", data: "", peso: "1", conteudo_id: "" });
+  const { data: conteudos } = useQuery({ queryKey: ["conteudos"], queryFn: async () => (await supabase.from("conteudos").select("id,titulo,disciplina_id").order("ordem")).data ?? [] });
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
     if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.data) { toast.error("Preencha todos os campos obrigatórios."); return; }
-    const { error } = await supabase.from("provas").insert({ ...f, data: localParaIso(f.data), peso: Number(f.peso.replace(",", ".")) || 1 });
+    const { error } = await supabase.from("provas").insert({ ...f, conteudo_id: f.conteudo_id || null, data: localParaIso(f.data), peso: Number(f.peso.replace(",", ".")) || 1 });
     if (error) { toast.error(error.message); return; }
     toast.success("Prova criada"); onSaved(); onClose();
   }
@@ -94,6 +95,7 @@ function NovaProva({ onClose, onSaved }: { onClose: () => void; onSaved: () => v
             <div><Label>Turma</Label><select className={sel} value={f.turma_id} onChange={(e) => setF({ ...f, turma_id: e.target.value })}><option value="">Selecione</option>{base?.turmas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}</select></div>
             <div><Label>Disciplina</Label><select className={sel} value={f.disciplina_id} onChange={(e) => setF({ ...f, disciplina_id: e.target.value })}><option value="">Selecione</option>{base?.disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}</select></div>
             <div><Label>Data</Label><Input type="datetime-local" value={f.data} onChange={(e) => setF({ ...f, data: e.target.value })} /></div>
+            <div><Label>Conteúdo principal</Label><select className={sel} value={f.conteudo_id} onChange={(e) => setF({ ...f, conteudo_id: e.target.value })}><option value="">Nenhum</option>{conteudos?.filter((c) => c.disciplina_id === f.disciplina_id).map((c) => <option key={c.id} value={c.id}>{c.titulo}</option>)}</select></div>
             <div><Label>Peso</Label><Input value={f.peso} onChange={(e) => setF({ ...f, peso: e.target.value })} /></div>
           </div>
           <Button type="submit" className="w-full rounded-xl">Salvar</Button>

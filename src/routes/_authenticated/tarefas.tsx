@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/tarefas")({
 const ROTULO: Record<StatusTarefa, string> = { pendente: "Pendente", em_andamento: "Em andamento", concluida: "Concluída", atrasada: "Atrasada" };
 const COR: Record<StatusTarefa, string> = { pendente: "bg-sky-soft text-primary", em_andamento: "bg-warning-soft text-warning", concluida: "bg-success-soft text-success", atrasada: "bg-danger-soft text-destructive" };
 
-type Tarefa = { id: string; titulo: string; descricao: string | null; prazo: string; prioridade: "baixa" | "media" | "alta"; turma_id: string; disciplina_id: string; categoria?: "enem" | "ssa" | "vestibular" | "concurso" | null };
+type Tarefa = { id: string; titulo: string; descricao: string | null; prazo: string; prioridade: "baixa" | "media" | "alta"; turma_id: string; disciplina_id: string; categoria?: "enem" | "ssa" | "vestibular" | "concurso" | null; conteudo_id?: string | null };
 
 function Tarefas() {
   const { user } = Route.useRouteContext();
@@ -144,12 +144,13 @@ const paraLocal = (iso?: string) => (iso ? new Date(new Date(iso).getTime() - ne
 function FormTarefa({ inicial, userId, onClose, onSaved }: { inicial: Partial<Tarefa>; userId: string; onClose: () => void; onSaved: () => void }) {
   const { data: base } = useTurmasDisciplinas();
   const [f, setF] = useState({ ...inicial, prazo: paraLocal(inicial.prazo) });
+  const { data: conteudos } = useQuery({ queryKey: ["conteudos"], queryFn: async () => (await supabase.from("conteudos").select("id,titulo,disciplina_id").order("ordem")).data ?? [] });
   const [salvando, setSalvando] = useState(false);
   async function salvar(ev: React.FormEvent) {
     ev.preventDefault();
     if (!f.titulo || !f.turma_id || !f.disciplina_id || !f.prazo) { toast.error("Preencha título, turma, disciplina e prazo."); return; }
     setSalvando(true);
-    const row = { titulo: f.titulo, descricao: f.descricao ?? null, turma_id: f.turma_id, disciplina_id: f.disciplina_id, prazo: localParaIso(f.prazo), prioridade: f.prioridade ?? "media", categoria: f.categoria ?? null };
+    const row = { titulo: f.titulo, descricao: f.descricao ?? null, turma_id: f.turma_id, disciplina_id: f.disciplina_id, prazo: localParaIso(f.prazo), prioridade: f.prioridade ?? "media", categoria: f.categoria ?? null, conteudo_id: f.conteudo_id || null };
     const { error } = inicial.id
       ? await supabase.from("tarefas").update(row).eq("id", inicial.id)
       : await supabase.from("tarefas").insert({ ...row, professor_id: userId });
@@ -171,6 +172,7 @@ function FormTarefa({ inicial, userId, onClose, onSaved }: { inicial: Partial<Ta
             <div><Label>Disciplina</Label><select className={sel} value={f.disciplina_id ?? ""} onChange={(e) => setF({ ...f, disciplina_id: e.target.value })}><option value="">Selecione</option>{base?.disciplinas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}</select></div>
             <div><Label>Prazo</Label><Input type="datetime-local" value={f.prazo} onChange={(e) => setF({ ...f, prazo: e.target.value })} /></div>
             <div><Label>Prioridade</Label><select className={sel} value={f.prioridade} onChange={(e) => setF({ ...f, prioridade: e.target.value as Tarefa["prioridade"] })}><option value="baixa">Baixa</option><option value="media">Média</option><option value="alta">Alta</option></select></div>
+            <div><Label>Conteúdo</Label><select className={sel} value={f.conteudo_id ?? ""} onChange={(e) => setF({ ...f, conteudo_id: e.target.value || null })}><option value="">Nenhum</option>{conteudos?.filter((c) => c.disciplina_id === f.disciplina_id).map((c) => <option key={c.id} value={c.id}>{c.titulo}</option>)}</select></div>
             <div><Label>Preparatório</Label><select className={sel} value={f.categoria ?? ""} onChange={(e) => setF({ ...f, categoria: (e.target.value || null) as NonNullable<Tarefa["categoria"]> | null })}><option value="">Nenhum</option><option value="enem">ENEM</option><option value="ssa">SSA</option><option value="vestibular">Vestibular</option><option value="concurso">Concurso</option></select></div>
           </div>
           <Button type="submit" className="w-full rounded-xl" disabled={salvando}>Salvar</Button>

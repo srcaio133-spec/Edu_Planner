@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -49,11 +49,42 @@ function Disciplinas() {
       </form>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {data?.disciplinas.map((d) => (
-          <div key={d.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 font-semibold shadow-card">
-            {d.nome}<Button size="icon" variant="ghost" aria-label="Excluir" onClick={() => excluir(d.id)}><Trash2 /></Button>
+          <div key={d.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
+            <div className="flex items-center justify-between font-semibold">{d.nome}<Button size="icon" variant="ghost" aria-label="Excluir" onClick={() => excluir(d.id)}><Trash2 /></Button></div>
+            <Conteudos disciplinaId={d.id} />
           </div>
         ))}
       </div>
     </>
+  );
+}
+
+function Conteudos({ disciplinaId }: { disciplinaId: string }) {
+  const qc = useQueryClient();
+  const [titulo, setTitulo] = useState("");
+  const { data } = useQuery({ queryKey: ["conteudos"], queryFn: async () => (await supabase.from("conteudos").select("id,titulo,disciplina_id").order("ordem")).data ?? [] });
+  const lista = (data ?? []).filter((c) => c.disciplina_id === disciplinaId);
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (!titulo.trim()) return;
+    const { error } = await supabase.from("conteudos").insert({ disciplina_id: disciplinaId, titulo: titulo.trim(), ordem: lista.length });
+    if (error) { toast.error("Não foi possível adicionar (talvez já exista)."); return; }
+    setTitulo(""); qc.invalidateQueries({ queryKey: ["conteudos"] });
+  }
+  async function del(id: string) {
+    await supabase.from("conteudos").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["conteudos"] });
+  }
+  return (
+    <div className="mt-2">
+      <div className="text-xs text-muted-foreground">Conteúdos</div>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {lista.map((c) => (
+          <span key={c.id} className="flex items-center gap-1 rounded-full bg-sky-soft px-2 py-0.5 text-xs text-primary">{c.titulo}
+            <button aria-label={`Remover ${c.titulo}`} onClick={() => del(c.id)}><X className="size-3" /></button></span>
+        ))}
+      </div>
+      <form onSubmit={add} className="mt-2 flex gap-1"><Input className="h-8 text-sm" placeholder="Novo conteúdo" value={titulo} onChange={(e) => setTitulo(e.target.value)} /><Button size="sm" type="submit" variant="outline">Adicionar</Button></form>
+    </div>
   );
 }
