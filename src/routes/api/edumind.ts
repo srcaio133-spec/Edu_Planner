@@ -51,15 +51,21 @@ export const Route = createFileRoute("/api/edumind")({
           sb.from("turma_disciplinas").select("professor_nome,disciplinas(nome),turmas(nome)").limit(30),
           sb.from("frequencias").select("presente").eq("aluno_id", uid),
           sb.rpc("desempenho_por_conteudo", { _aluno: uid }),
-          sb.from("conteudos").select("titulo,disciplinas(nome)").order("ordem"),
+          sb.from("conteudos").select("titulo,resumo,disciplinas(nome)").order("ordem"),
         ]);
         const rs = (roles.data ?? []).map((r) => r.role);
         const perfil = rs.some((r) => ["admin", "diretor", "vice_diretor", "secretaria", "coordenacao"].includes(r)) ? "gestao" : rs.includes("professor") ? "professor" : "aluno";
+        const perfilPrevio = perfil;
         const contexto = JSON.stringify({
           nome: prof.data?.nome, data_hoje: agora.slice(0, 10),
           disciplinas_da_turma: (discs.data ?? []).map((d) => ({ disciplina: d.disciplinas?.nome, professor: d.professor_nome, turma: d.turmas?.nome })),
           frequencia_percentual: freq.data?.length ? Math.round((freq.data.filter((f) => f.presente).length * 100) / freq.data.length) : null,
-          conteudos_por_disciplina: (conts.data ?? []).reduce<Record<string, string[]>>((acc, c) => { const d = c.disciplinas?.nome ?? "—"; (acc[d] ??= []).push(c.titulo); return acc; }, {}),
+          materia_por_disciplina: (conts.data ?? [])
+            .filter((c) => {
+              const daTurma = new Set((discs.data ?? []).map((d) => d.disciplinas?.nome));
+              return perfilPrevio !== "aluno" || daTurma.size === 0 || daTurma.has(c.disciplinas?.nome);
+            })
+            .reduce<Record<string, { conteudo: string; material: string | null }[]>>((acc, c) => { const d = c.disciplinas?.nome ?? "—"; (acc[d] ??= []).push({ conteudo: c.titulo, material: c.resumo }); return acc; }, {}),
           desempenho_simulados_por_conteudo: desemp.data,
           proximas_tarefas: tarefas.data, proximas_provas: provas.data, minhas_notas: notas.data, simulados_recentes: tent.data,
         });
@@ -68,7 +74,7 @@ export const Route = createFileRoute("/api/edumind")({
 PAPEL NESTA CONVERSA
 ${PAPEL[perfil]}
 Nunca revele dados de outros alunos.
-Priorize as disciplinas da turma e os conteúdos das próximas provas: é o que o aluno realmente estuda. Questões e exemplos devem ser dessas disciplinas e conteúdos. Use o desempenho por conteúdo para sugerir o que revisar (onde há mais erros).
+Priorize as disciplinas da turma e os conteúdos das próximas provas: é o que o aluno realmente estuda. Questões e exemplos devem ser dessas disciplinas e conteúdos. Ao explicar um conteúdo, baseie-se no "material" cadastrado pela escola em materia_por_disciplina (mesmas fórmulas, notação e exemplos) e diga de qual disciplina/conteúdo é. Se o aluno perguntar algo fora da matéria dele, responda, mas aponte o conteúdo da escola mais próximo. Use o desempenho por conteúdo para sugerir o que revisar (onde há mais erros).
 Dados reais do usuário no EduPlanner (use quando relevante): ${contexto}`;
 
         const apiKey = process.env["LOVABLE_API_KEY"];

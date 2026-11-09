@@ -1,0 +1,1 @@
+ALTER TABLE public.conteudos ADD COLUMN IF NOT EXISTS resumo text;

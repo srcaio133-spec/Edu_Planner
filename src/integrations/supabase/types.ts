@@ -103,6 +103,7 @@ export type Database = {
           disciplina_id: string
           id: string
           ordem: number
+          resumo: string | null
           titulo: string
         }
         Insert: {
@@ -110,6 +111,7 @@ export type Database = {
           disciplina_id: string
           id?: string
           ordem?: number
+          resumo?: string | null
           titulo: string
         }
         Update: {
@@ -117,6 +119,7 @@ export type Database = {
           disciplina_id?: string
           id?: string
           ordem?: number
+          resumo?: string | null
           titulo?: string
         }
         Relationships: [
