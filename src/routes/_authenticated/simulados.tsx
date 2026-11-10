@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { usePerfil, fmtData, fmtNota, useTurmasDisciplinas } from "@/lib/dados";
 import { CATEGORIAS, LETRAS, type Categoria } from "@/lib/simulados";
 import { FiguraSvg } from "@/components/FiguraSvg";
-import { GerarQuestoesIA, RevisarQuestoes } from "@/components/QuestoesIA";
+import { GerarQuestoesIA, MinhasQuestoes, RevisarQuestoes } from "@/components/QuestoesIA";
 
 export const Route = createFileRoute("/_authenticated/simulados")({
   head: () => ({
@@ -111,9 +111,10 @@ function Simulados() {
           ))}
         </section>
       )}
-      {gere && <RevisarQuestoes simulados={data?.simulados ?? []} />}
+      {p?.perfil === "gestao" && <RevisarQuestoes simulados={data?.simulados ?? []} />}
+      {p?.perfil === "professor" && <MinhasQuestoes userId={user.id} />}
       {gerar && <GerarQuestoesIA onClose={() => setGerar(false)} />}
-      {nova && <NovaQuestao simulados={data?.simulados ?? []} onClose={() => setNova(false)} />}
+      {nova && <NovaQuestao gestao={p?.perfil === "gestao"} simulados={data?.simulados ?? []} onClose={() => setNova(false)} />}
     </>
   );
 }
@@ -202,7 +203,7 @@ function Resolver({ sim, onSair }: { sim: { id: string; titulo: string; duracao_
   );
 }
 
-function NovaQuestao({ simulados, onClose }: { simulados: { id: string; titulo: string; categoria: Categoria }[]; onClose: () => void }) {
+function NovaQuestao({ simulados, onClose, gestao }: { gestao: boolean; simulados: { id: string; titulo: string; categoria: Categoria }[]; onClose: () => void }) {
   const qc = useQueryClient();
   const [f, setF] = useState({ categoria: "enem" as Categoria, area: "", enunciado: "", alts: ["", "", "", "", ""], correta: 0, explicacao: "", simulado_id: "" });
   const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
@@ -213,8 +214,9 @@ function NovaQuestao({ simulados, onClose }: { simulados: { id: string; titulo: 
     if (error || !q) { toast.error("Não foi possível salvar."); return; }
     const g = await supabase.from("questoes_gabarito").insert({ questao_id: q.id, correta: f.correta, explicacao: f.explicacao });
     if (g.error) { toast.error("Não foi possível salvar o gabarito."); return; }
-    if (f.simulado_id) await supabase.from("simulado_questoes").insert({ simulado_id: f.simulado_id, questao_id: q.id, ordem: 99 });
-    toast.success("Questão criada");
+    if (gestao && f.simulado_id) await supabase.from("simulado_questoes").insert({ simulado_id: f.simulado_id, questao_id: q.id, ordem: 99 });
+    toast.success(gestao ? "Questão criada" : "Questão enviada para a revisão da secretaria");
+    qc.invalidateQueries({ queryKey: ["revisao"] });
     qc.invalidateQueries({ queryKey: ["simulados"] });
     onClose();
   }
@@ -237,7 +239,7 @@ function NovaQuestao({ simulados, onClose }: { simulados: { id: string; titulo: 
             </div>
           ))}
           <div><Label>Explicação</Label><Textarea value={f.explicacao} onChange={(e) => setF({ ...f, explicacao: e.target.value })} /></div>
-          <div><Label>Adicionar ao simulado</Label><select className={sel} value={f.simulado_id} onChange={(e) => setF({ ...f, simulado_id: e.target.value })}><option value="">Nenhum</option>{simulados.filter((s) => s.categoria === f.categoria).map((s) => <option key={s.id} value={s.id}>{s.titulo}</option>)}</select></div>
+          {gestao && <div><Label>Adicionar ao simulado</Label><select className={sel} value={f.simulado_id} onChange={(e) => setF({ ...f, simulado_id: e.target.value })}><option value="">Nenhum</option>{simulados.filter((s) => s.categoria === f.categoria).map((s) => <option key={s.id} value={s.id}>{s.titulo}</option>)}</select></div>}
           <Button type="submit" className="w-full rounded-xl">Salvar</Button>
         </form>
       </DialogContent>

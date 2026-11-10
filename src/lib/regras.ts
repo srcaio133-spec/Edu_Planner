@@ -27,3 +27,10 @@ export function emAlerta(media: number | null, freq: number | null): boolean {
 export function saldoPontos(ganhos: number[], gastos: number[]): number {
   return ganhos.reduce((a, b) => a + b, 0) - gastos.reduce((a, b) => a + b, 0);
 }
+
+/** Espelha avaliar_questao: só a gestão avalia; rejeitar exige motivo; só questões em revisão. */
+export function podeAvaliarQuestao(meus: AppRole[], status: string, aprovar: boolean, motivo = ""): boolean {
+  if (!meus.some((r) => GESTAO.includes(r))) return false;
+  if (status !== "em_revisao") return false;
+  return aprovar || motivo.trim().length > 0;
+}

@@ -562,6 +562,9 @@ export type Database = {
           enunciado: string
           figura: Json | null
           id: string
+          motivo_rejeicao: string | null
+          revisado_em: string | null
+          revisado_por: string | null
           status: string
         }
         Insert: {
@@ -575,6 +578,9 @@ export type Database = {
           enunciado: string
           figura?: Json | null
           id?: string
+          motivo_rejeicao?: string | null
+          revisado_em?: string | null
+          revisado_por?: string | null
           status?: string
         }
         Update: {
@@ -588,6 +594,9 @@ export type Database = {
           enunciado?: string
           figura?: Json | null
           id?: string
+          motivo_rejeicao?: string | null
+          revisado_em?: string | null
+          revisado_por?: string | null
           status?: string
         }
         Relationships: [
@@ -949,6 +958,15 @@ export type Database = {
       aluno_na_turma: { Args: { _turma: string }; Returns: boolean }
       avaliar_comunicado: {
         Args: { _aprovar: boolean; _id: string; _motivo?: string }
+        Returns: undefined
+      }
+      avaliar_questao: {
+        Args: {
+          _aprovar: boolean
+          _id: string
+          _motivo: string
+          _simulado: string
+        }
         Returns: undefined
       }
       comunicado_para_mim: {

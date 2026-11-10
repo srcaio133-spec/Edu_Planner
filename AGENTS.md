@@ -17,4 +17,4 @@
 - Points, challenge completion, reward redemption and announcement approval are enforced in security-definer functions (resgatar_desafio, trocar_recompensa, avaliar_comunicado); a BEFORE INSERT trigger forces professor announcements to "pendente".
 - EduMind grounds explanations in each topic's study material (conteudos.resumo, edited by management on Disciplinas); students only get topics of their class subjects.
 - EduMind figures: the model emits [[FIGURA]]{json}[[/FIGURA]] specs; src/lib/edumind/figuras.ts (ported from the user's kit) validates and draws the SVG, so measurements are always exact; never render model-written SVG/HTML.
-- AI-generated questions are saved with status "em_revisao" and only reach students after staff approval (RLS hides non-approved questions from students).
+- Questions from non-management users are forced to "em_revisao" by a BEFORE INSERT trigger; only management approves/rejects (with reason) via the avaliar_questao security-definer function, which also links to a simulado, notifies the author and audits. Students only read approved questions.

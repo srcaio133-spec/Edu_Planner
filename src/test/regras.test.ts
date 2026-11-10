@@ -21,3 +21,14 @@ describe("frequência e alertas", () => {
 describe("saldoPontos", () => {
   it("50 + 40 ganhos − 30 gastos = 60", () => expect(saldoPontos([50, 40], [30])).toBe(60));
 });
+
+import { podeAvaliarQuestao } from "@/lib/regras";
+describe("fila de revisão de questões", () => {
+  it("professor não aprova questões", () => expect(podeAvaliarQuestao(["professor"], "em_revisao", true)).toBe(false));
+  it("secretaria aprova questão em revisão", () => expect(podeAvaliarQuestao(["secretaria"], "em_revisao", true)).toBe(true));
+  it("rejeitar exige motivo", () => {
+    expect(podeAvaliarQuestao(["secretaria"], "em_revisao", false, "  ")).toBe(false);
+    expect(podeAvaliarQuestao(["secretaria"], "em_revisao", false, "Gabarito errado")).toBe(true);
+  });
+  it("questão já aprovada não volta à fila", () => expect(podeAvaliarQuestao(["diretor"], "aprovada", true)).toBe(false));
+});
